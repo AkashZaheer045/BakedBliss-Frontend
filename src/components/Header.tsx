@@ -49,12 +49,14 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
             </Button>
             <Button 
               variant="ghost" 
+              onClick={() => navigate("/about")}
               className="font-medium"
             >
               About
             </Button>
             <Button 
               variant="ghost" 
+              onClick={() => navigate("/contact")}
               className="font-medium"
             >
               Contact
@@ -103,7 +105,10 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={onProfileClick}
+              onClick={() => {
+                onProfileClick?.();
+                navigate("/profile");
+              }}
             >
               <User className="w-5 h-5" />
             </Button>
