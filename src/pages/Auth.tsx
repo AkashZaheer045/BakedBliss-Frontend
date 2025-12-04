@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services";
 
 interface AuthProps {
   onAuthSuccess: () => void;
@@ -21,6 +23,7 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
     phone: '',
     confirmPassword: ''
   });
+  const { toast } = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -32,20 +35,72 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
   const handleSubmit = async (e: React.FormEvent, type: 'login' | 'signup') => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      if (type === 'login') {
+        // Login
+        await authService.signIn({
+          email: formData.email,
+          password: formData.password
+        });
+
+        toast({
+          title: "Login successful!",
+          description: "Welcome back to Baked Bliss",
+        });
+      } else {
+        // Signup - validate passwords match
+        if (formData.password !== formData.confirmPassword) {
+          toast({
+            title: "Error",
+            description: "Passwords do not match",
+            variant: "destructive"
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        await authService.signUp({
+          full_name: formData.name,
+          email: formData.email,
+          phone_number: formData.phone,
+          password: formData.password
+        });
+
+        toast({
+          title: "Account created!",
+          description: "Welcome to Baked Bliss",
+        });
+      }
+
+      // Success - call the onAuthSuccess callback
+      setTimeout(() => {
+        onAuthSuccess();
+      }, 500);
+
+    } catch (error: any) {
+      console.error('Authentication error:', error);
+
+      const errorMessage = error.response?.data?.message ||
+        error.message ||
+        'Authentication failed. Please try again.';
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
       setIsLoading(false);
-      onAuthSuccess();
-    }, 1500);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Back Button */}
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={onBack}
           className="self-start"
         >

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
@@ -8,73 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock products data
-const mockProducts = [
-  {
-    id: "1",
-    name: "Classic Chocolate Croissant",
-    image: "/placeholder.svg",
-    price: 4.99,
-    originalPrice: 6.99,
-    rating: 4.8,
-    reviewCount: 124,
-    description: "Buttery, flaky pastry filled with rich Belgian chocolate",
-    category: "pastries",
-    isNew: true
-  },
-  {
-    id: "2",
-    name: "Artisan Sourdough Bread",
-    image: "/placeholder.svg", 
-    price: 8.99,
-    rating: 4.9,
-    reviewCount: 89,
-    description: "Traditional sourdough with a perfect crust and soft interior",
-    category: "breads"
-  },
-  {
-    id: "3",
-    name: "Strawberry Cheesecake Slice",
-    image: "/placeholder.svg",
-    price: 6.99,
-    originalPrice: 8.99,
-    rating: 4.7,
-    reviewCount: 156,
-    description: "Creamy New York style cheesecake with fresh strawberries",
-    category: "desserts"
-  },
-  {
-    id: "4",
-    name: "Rainbow Macarons Box",
-    image: "/placeholder.svg",
-    price: 12.99,
-    rating: 4.9,
-    reviewCount: 203,
-    description: "Assorted flavors of delicate French macarons",
-    category: "desserts"
-  },
-  {
-    id: "5",
-    name: "Blueberry Muffin",
-    image: "/placeholder.svg",
-    price: 3.99,
-    rating: 4.6,
-    reviewCount: 78,
-    description: "Fluffy muffin packed with fresh blueberries",
-    category: "cupcakes"
-  },
-  {
-    id: "6",
-    name: "Pain au Chocolat",
-    image: "/placeholder.svg",
-    price: 4.49,
-    rating: 4.8,
-    reviewCount: 92,
-    description: "Traditional French pastry with dark chocolate",
-    category: "pastries"
-  }
-];
+import { useAuth } from "@/contexts/AuthContext";
+import { productService, cartService } from "@/services";
 
 const categories = [
   { id: "all", label: "All Items" },
@@ -87,22 +22,115 @@ const categories = [
 const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [cartItemCount, setCartItemCount] = useState(3);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [cartItemCount, setCartItemCount] = useState(0);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const filteredProducts = mockProducts.filter(product => {
-    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Load products on mount
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await productService.listProducts({
+          category: selectedCategory !== 'all' ? selectedCategory : undefined,
+          search: searchQuery || undefined
+        });
 
-  const handleAddToCart = (productId: string) => {
-    setCartItemCount(prev => prev + 1);
-    toast({
-      title: "Added to cart!",
-      description: "Item has been added to your cart successfully.",
-    });
+        if (response.success && response.data) {
+          // Map backend fields to frontend format
+          const mappedProducts = response.data.map((product: any) => ({
+            id: product.id.toString(),
+            name: product.title,
+            image: product.thumbnail || "/placeholder.svg",
+            price: product.sale_price || product.price,
+            originalPrice: product.sale_price ? product.price : undefined,
+            rating: product.rating || 0,
+            reviewCount: product.rating_count || 0,
+            description: product.description || "",
+            category: product.category?.toLowerCase() || "other",
+            isNew: product.created_at ? (new Date().getTime() - new Date(product.created_at).getTime()) < (7 * 24 * 60 * 60 * 1000) : false
+          }));
+          setProducts(mappedProducts);
+        }
+      } catch (error: any) {
+        console.error('Failed to load products:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load products. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [selectedCategory]);
+
+  // Search products
+  const handleSearch = async () => {
+    if (!searchQuery) return;
+
+    try {
+      setLoading(true);
+      const response = await productService.searchProducts(searchQuery);
+
+      if (response.success && response.data) {
+        const mappedProducts = response.data.map((product: any) => ({
+          id: product.id.toString(),
+          name: product.title,
+          image: product.thumbnail || "/placeholder.svg",
+          price: product.sale_price || product.price,
+          originalPrice: product.sale_price ? product.price : undefined,
+          rating: product.rating || 0,
+          reviewCount: product.rating_count || 0,
+          description: product.description || "",
+          category: product.category?.toLowerCase() || "other"
+        }));
+        setProducts(mappedProducts);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to search products",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToCart = async (productId: string) => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to add items to cart",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      await cartService.addToCart({
+        user_id: user.user_id,
+        product_id: parseInt(productId),
+        quantity: 1
+      });
+
+      setCartItemCount(prev => prev + 1);
+      toast({
+        title: "Added to cart!",
+        description: "Item has been added to your cart successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to add to cart",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleProductClick = (productId: string) => {
@@ -112,13 +140,19 @@ const Menu = () => {
     });
   };
 
+  const filteredProducts = searchQuery
+    ? products
+    : products.filter(product =>
+      selectedCategory === "all" || product.category === selectedCategory
+    );
+
   return (
     <div className="min-h-screen bg-background">
-      <Header 
+      <Header
         cartItemCount={cartItemCount}
         onSearch={setSearchQuery}
-        onCartClick={() => toast({ title: "Cart", description: "Opening shopping cart..." })}
-        onProfileClick={() => toast({ title: "Profile", description: "Opening user profile..." })}
+        onCartClick={() => window.location.href = '/cart'}
+        onProfileClick={() => window.location.href = '/profile'}
       />
 
       <main className="container mx-auto px-4 py-8">
@@ -136,13 +170,18 @@ const Menu = () => {
               placeholder="Search for products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               className="pl-10"
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           </div>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handleSearch}
+          >
             <SlidersHorizontal className="w-4 h-4" />
-            Filters
+            Search
           </Button>
         </div>
 
@@ -161,7 +200,7 @@ const Menu = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">
-              Showing {filteredProducts.length} products
+              {loading ? "Loading..." : `Showing ${filteredProducts.length} products`}
             </span>
             {searchQuery && (
               <Badge variant="secondary">
@@ -172,7 +211,12 @@ const Menu = () => {
         </div>
 
         {/* Products Grid */}
-        {filteredProducts.length > 0 ? (
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Loading products...</p>
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <ProductCard
