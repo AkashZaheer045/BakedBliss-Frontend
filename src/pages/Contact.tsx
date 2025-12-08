@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Phone, Mail, Clock, MessageCircle, Send } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, MessageCircle, Send, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { contactService } from "@/services";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -15,15 +16,37 @@ const Contact = () => {
     subject: "",
     message: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message sent!",
-      description: "Thank you for contacting us. We'll get back to you soon!",
-    });
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setIsSubmitting(true);
+
+    try {
+      const response = await contactService.sendMessage({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message
+      });
+
+      if (response.success) {
+        toast({
+          title: "Message sent!",
+          description: "Thank you for contacting us. We'll get back to you soon!",
+        });
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to send message. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -74,9 +97,9 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header 
+      <Header
         cartItemCount={0}
-        onSearch={() => {}}
+        onSearch={() => { }}
         onCartClick={() => toast({ title: "Cart", description: "Opening shopping cart..." })}
         onProfileClick={() => toast({ title: "Profile", description: "Opening user profile..." })}
       />
@@ -90,7 +113,7 @@ const Contact = () => {
               <span className="text-primary block">Touch</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              We'd love to hear from you! Whether you have questions, feedback, or special requests, 
+              We'd love to hear from you! Whether you have questions, feedback, or special requests,
               our team is here to help make your bakery experience exceptional.
             </p>
           </div>
@@ -142,7 +165,7 @@ const Contact = () => {
                           />
                         </div>
                       </div>
-                      
+
                       <div>
                         <label htmlFor="subject" className="text-sm font-medium mb-2 block">
                           Subject *
@@ -157,7 +180,7 @@ const Contact = () => {
                           className="border-primary/20 focus:border-primary"
                         />
                       </div>
-                      
+
                       <div>
                         <label htmlFor="message" className="text-sm font-medium mb-2 block">
                           Message *
@@ -173,10 +196,19 @@ const Contact = () => {
                           className="border-primary/20 focus:border-primary resize-none"
                         />
                       </div>
-                      
-                      <Button type="submit" variant="hero" size="lg" className="w-full group">
-                        Send Message
-                        <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+
+                      <Button type="submit" variant="hero" size="lg" className="w-full group" disabled={isSubmitting}>
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            Send Message
+                            <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </>
+                        )}
                       </Button>
                     </form>
                   </CardContent>

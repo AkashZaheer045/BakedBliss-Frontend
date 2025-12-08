@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AuthProps {
   onAuthSuccess: () => void;
@@ -24,6 +24,7 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
     confirmPassword: ''
   });
   const { toast } = useToast();
+  const { login, signup } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -38,11 +39,8 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
 
     try {
       if (type === 'login') {
-        // Login
-        await authService.signIn({
-          email: formData.email,
-          password: formData.password
-        });
+        // Login using AuthContext
+        await login(formData.email, formData.password);
 
         toast({
           title: "Login successful!",
@@ -60,7 +58,8 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
           return;
         }
 
-        await authService.signUp({
+        // Signup using AuthContext
+        await signup({
           full_name: formData.name,
           email: formData.email,
           phone_number: formData.phone,

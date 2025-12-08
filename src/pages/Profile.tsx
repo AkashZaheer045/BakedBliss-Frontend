@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,90 +8,187 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  User, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Calendar, 
-  Star, 
-  Package, 
+import {
+  User,
+  MapPin,
+  Phone,
+  Mail,
+  Calendar,
+  Star,
+  Package,
   Heart,
   Edit,
   Settings,
   CreditCard,
-  Bell
+  Bell,
+  Loader2
 } from "lucide-react";
-import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { orderService, authService } from "@/services";
 
-// Mock user data
-const userData = {
-  name: "Sarah Johnson",
-  email: "sarah.johnson@email.com",
-  phone: "+1 (555) 987-6543",
-  address: "456 Sweet Lane, Sugar City, SC 12346",
-  joinDate: "March 2023",
-  totalOrders: 47,
-  favoriteItems: 12,
-  membershipLevel: "Gold Member"
-};
+interface Order {
+  id: string;
+  order_id: string;
+  date: string;
+  status: string;
+  total: number;
+  items: string[];
+}
 
-const recentOrders = [
-  {
-    id: "ORD-2024-001",
-    date: "Dec 18, 2024",
-    status: "Delivered",
-    total: 24.97,
-    items: ["Chocolate Croissant x2", "Cappuccino x1"]
-  },
-  {
-    id: "ORD-2024-002", 
-    date: "Dec 15, 2024",
-    status: "Delivered",
-    total: 18.50,
-    items: ["Strawberry Cheesecake", "Earl Grey Tea"]
-  },
-  {
-    id: "ORD-2024-003",
-    date: "Dec 12, 2024", 
-    status: "Delivered",
-    total: 32.40,
-    items: ["Birthday Cake", "Macarons Box"]
-  }
-];
-
-const favoriteItems = [
-  { name: "Chocolate Croissant", price: 4.99, orders: 15 },
-  { name: "Strawberry Cheesecake", price: 6.99, orders: 8 },
-  { name: "Artisan Sourdough", price: 8.99, orders: 6 },
-  { name: "Rainbow Macarons", price: 12.99, orders: 4 }
-];
+interface UserStats {
+  totalOrders: number;
+  totalSpent: number;
+  favoriteItems: number;
+  avgRating: number;
+}
 
 const Profile = () => {
   const [editMode, setEditMode] = useState(false);
-  const [userInfo, setUserInfo] = useState(userData);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [stats, setStats] = useState<UserStats>({
+    totalOrders: 0,
+    totalSpent: 0,
+    favoriteItems: 0,
+    avgRating: 0
+  });
+  const [userInfo, setUserInfo] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    joinDate: "",
+    membershipLevel: "Member"
+  });
   const { toast } = useToast();
+  const { user, updateUser } = useAuth();
 
-  const handleSave = () => {
-    setEditMode(false);
-    toast({
-      title: "Profile updated!",
-      description: "Your profile information has been saved successfully.",
-    });
+  // Fetch user data and orders on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+
+        // Set user info from auth context
+        setUserInfo({
+          name: user.full_name || "",
+          email: user.email || "",
+          phone: user.phone_number || "",
+          address: "",
+          joinDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+          membershipLevel: user.role === 'admin' ? 'Admin' : 'Member'
+        });
+
+        // Fetch user orders
+        try {
+          const ordersResponse = await orderService.getUserOrders(user.user_id);
+          if (ordersResponse.success && ordersResponse.data) {
+            const mappedOrders: Order[] = ordersResponse.data.map((order: any) => ({
+              id: order.id?.toString(),
+              order_id: order.order_id || `ORD-${order.id}`,
+              date: new Date(order.created_at).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              }),
+              status: order.status || 'Pending',
+              total: parseFloat(order.total_amount) || 0,
+              items: order.cart_items?.map((item: any) =>
+                `${item.title || 'Item'} x${item.quantity}`
+              ) || []
+            }));
+            setOrders(mappedOrders);
+
+            // Calculate stats from orders
+            const totalSpent = mappedOrders.reduce((sum, order) => sum + order.total, 0);
+            setStats({
+              totalOrders: mappedOrders.length,
+              totalSpent: totalSpent,
+              favoriteItems: 0, // Would need a favorites API
+              avgRating: 4.5 // Placeholder
+            });
+          }
+        } catch (orderError) {
+          console.error("Failed to fetch orders:", orderError);
+        }
+
+      } catch (error: any) {
+        console.error("Failed to fetch profile data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user]);
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    setSaving(true);
+    try {
+      // Update user profile via API
+      const response = await authService.updateProfile(user.user_id, {
+        full_name: userInfo.name,
+        phone_number: userInfo.phone
+      });
+
+      if (response.success) {
+        // Update auth context
+        updateUser({
+          ...user,
+          full_name: userInfo.name,
+          phone_number: userInfo.phone
+        });
+
+        setEditMode(false);
+        toast({
+          title: "Profile updated!",
+          description: "Your profile information has been saved successfully.",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to update profile",
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
     setUserInfo(prev => ({ ...prev, [field]: value }));
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <Header 
-        cartItemCount={3}
-        onSearch={() => {}}
-        onCartClick={() => toast({ title: "Cart", description: "Opening shopping cart..." })}
-        onProfileClick={() => {}}
+      <Header
+        cartItemCount={0}
+        onSearch={() => { }}
+        onCartClick={() => window.location.href = '/cart'}
+        onProfileClick={() => { }}
       />
 
       <main className="container mx-auto px-4 py-8">
@@ -100,16 +198,16 @@ const Profile = () => {
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                 <Avatar className="w-20 h-20">
-                  <AvatarImage src="/placeholder.svg" alt={userInfo.name} />
+                  <AvatarImage src={user?.profile_picture} alt={userInfo.name} />
                   <AvatarFallback className="text-xl bg-primary/10 text-primary">
                     {userInfo.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
-                
+
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h1 className="text-3xl font-bold text-foreground mb-2">{userInfo.name}</h1>
+                      <h1 className="text-3xl font-bold text-foreground mb-2">{userInfo.name || 'User'}</h1>
                       <Badge className="mb-3 bg-warning text-warning-foreground">
                         {userInfo.membershipLevel}
                       </Badge>
@@ -120,16 +218,16 @@ const Profile = () => {
                         </div>
                         <div className="flex items-center gap-1">
                           <Package className="w-4 h-4" />
-                          {userInfo.totalOrders} orders
+                          {stats.totalOrders} orders
                         </div>
                         <div className="flex items-center gap-1">
                           <Heart className="w-4 h-4" />
-                          {userInfo.favoriteItems} favorites
+                          {stats.favoriteItems} favorites
                         </div>
                       </div>
                     </div>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => setEditMode(!editMode)}
                       className="flex items-center gap-2"
                     >
@@ -167,53 +265,46 @@ const Profile = () => {
                   <div>
                     <label className="text-sm font-medium mb-1 block">Full Name</label>
                     {editMode ? (
-                      <Input 
+                      <Input
                         value={userInfo.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
                         className="border-primary/20"
                       />
                     ) : (
-                      <p className="text-muted-foreground">{userInfo.name}</p>
+                      <p className="text-muted-foreground">{userInfo.name || 'Not set'}</p>
                     )}
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">Email</label>
-                    {editMode ? (
-                      <Input 
-                        value={userInfo.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        className="border-primary/20"
-                      />
-                    ) : (
-                      <p className="text-muted-foreground">{userInfo.email}</p>
-                    )}
+                    <p className="text-muted-foreground">{userInfo.email}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">Phone</label>
                     {editMode ? (
-                      <Input 
+                      <Input
                         value={userInfo.phone}
                         onChange={(e) => handleInputChange('phone', e.target.value)}
                         className="border-primary/20"
                       />
                     ) : (
-                      <p className="text-muted-foreground">{userInfo.phone}</p>
+                      <p className="text-muted-foreground">{userInfo.phone || 'Not set'}</p>
                     )}
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">Address</label>
                     {editMode ? (
-                      <Input 
+                      <Input
                         value={userInfo.address}
                         onChange={(e) => handleInputChange('address', e.target.value)}
                         className="border-primary/20"
                       />
                     ) : (
-                      <p className="text-muted-foreground">{userInfo.address}</p>
+                      <p className="text-muted-foreground">{userInfo.address || 'Not set'}</p>
                     )}
                   </div>
                   {editMode && (
-                    <Button onClick={handleSave} variant="hero" className="w-full">
+                    <Button onClick={handleSave} variant="hero" className="w-full" disabled={saving}>
+                      {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                       Save Changes
                     </Button>
                   )}
@@ -228,19 +319,19 @@ const Profile = () => {
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-primary/5 rounded-lg">
-                      <div className="text-2xl font-bold text-primary">{userInfo.totalOrders}</div>
+                      <div className="text-2xl font-bold text-primary">{stats.totalOrders}</div>
                       <div className="text-sm text-muted-foreground">Total Orders</div>
                     </div>
                     <div className="text-center p-4 bg-success/5 rounded-lg">
-                      <div className="text-2xl font-bold text-success">$1,247</div>
+                      <div className="text-2xl font-bold text-success">${stats.totalSpent.toFixed(2)}</div>
                       <div className="text-sm text-muted-foreground">Total Spent</div>
                     </div>
                     <div className="text-center p-4 bg-warning/5 rounded-lg">
-                      <div className="text-2xl font-bold text-warning">{userInfo.favoriteItems}</div>
+                      <div className="text-2xl font-bold text-warning">{stats.favoriteItems}</div>
                       <div className="text-sm text-muted-foreground">Favorites</div>
                     </div>
                     <div className="text-center p-4 bg-primary/5 rounded-lg">
-                      <div className="text-2xl font-bold text-primary">4.9</div>
+                      <div className="text-2xl font-bold text-primary">{stats.avgRating}</div>
                       <div className="text-sm text-muted-foreground">Avg Rating</div>
                     </div>
                   </div>
@@ -256,21 +347,28 @@ const Profile = () => {
                 <CardTitle>Recent Orders</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentOrders.map((order) => (
-                    <div key={order.id} className="border border-primary/10 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <span className="font-medium">{order.id}</span>
-                          <Badge variant="secondary">{order.status}</Badge>
+                {orders.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-muted-foreground">No orders yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {orders.map((order) => (
+                      <div key={order.id} className="border border-primary/10 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                            <span className="font-medium">{order.order_id}</span>
+                            <Badge variant="secondary">{order.status}</Badge>
+                          </div>
+                          <span className="font-bold text-primary">${order.total.toFixed(2)}</span>
                         </div>
-                        <span className="font-bold text-primary">${order.total}</span>
+                        <p className="text-sm text-muted-foreground mb-2">{order.date}</p>
+                        <p className="text-sm">{order.items.join(', ') || 'No items'}</p>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{order.date}</p>
-                      <p className="text-sm">{order.items.join(', ')}</p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -282,21 +380,10 @@ const Profile = () => {
                 <CardTitle>Your Favorite Items</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {favoriteItems.map((item, index) => (
-                    <div key={index} className="border border-primary/10 rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium">{item.name}</h3>
-                          <p className="text-sm text-muted-foreground">Ordered {item.orders} times</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-primary">${item.price}</p>
-                          <Button size="sm" variant="outline">Reorder</Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="text-center py-8">
+                  <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground">No favorites yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">Start adding items to your favorites!</p>
                 </div>
               </CardContent>
             </Card>

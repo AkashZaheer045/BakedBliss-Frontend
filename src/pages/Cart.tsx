@@ -1,55 +1,133 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { cartService, orderService } from "@/services";
 
-// Mock cart items
-const initialCartItems = [
-  {
-    id: "1",
-    name: "Classic Chocolate Croissant",
-    image: "/placeholder.svg",
-    price: 4.99,
-    quantity: 2,
-    description: "Buttery, flaky pastry filled with rich Belgian chocolate"
-  },
-  {
-    id: "2",
-    name: "Strawberry Cheesecake Slice",
-    image: "/placeholder.svg",
-    price: 6.99,
-    quantity: 1,
-    description: "Creamy New York style cheesecake with fresh strawberries"
-  }
-];
+interface CartItem {
+  id: string;
+  product_id: number;
+  name: string;
+  image: string;
+  price: number;
+  quantity: number;
+  description: string;
+}
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const updateQuantity = (id: string, newQuantity: number) => {
+  // Fetch cart on mount
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await cartService.getCart(user.user_id);
+        
+        if (response.success && response.data) {
+          // Map backend cart items to frontend format
+          const mappedItems: CartItem[] = (response.data.items || []).map((item: any) => ({
+            id: item.id?.toString() || item.product_id?.toString(),
+            product_id: item.product_id,
+            name: item.title || item.name || "Product",
+            image: item.thumbnail || "/placeholder.svg",
+            price: parseFloat(item.price) || 0,
+            quantity: item.quantity || 1,
+            description: item.description || ""
+          }));
+          setCartItems(mappedItems);
+        }
+      } catch (error: any) {
+        console.error("Failed to fetch cart:", error);
+        // Don't show error if cart is just empty
+        if (error.response?.status !== 404) {
+          toast({
+            title: "Error",
+            description: "Failed to load cart. Please try again.",
+            variant: "destructive"
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, [user]);
+
+  const updateQuantity = async (id: string, newQuantity: number) => {
+    if (!user) return;
+
     if (newQuantity === 0) {
       removeItem(id);
       return;
     }
-    setCartItems(items => 
-      items.map(item => 
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
+
+    const item = cartItems.find(i => i.id === id);
+    if (!item) return;
+
+    setUpdating(id);
+    try {
+      await cartService.updateCartItem({
+        user_id: user.user_id,
+        product_id: item.product_id,
+        quantity: newQuantity
+      });
+
+      setCartItems(items =>
+        items.map(i =>
+          i.id === id ? { ...i, quantity: newQuantity } : i
+        )
+      );
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to update quantity",
+        variant: "destructive"
+      });
+    } finally {
+      setUpdating(null);
+    }
   };
 
-  const removeItem = (id: string) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-    toast({
-      title: "Item removed",
-      description: "Item has been removed from your cart.",
-    });
+  const removeItem = async (id: string) => {
+    if (!user) return;
+
+    const item = cartItems.find(i => i.id === id);
+    if (!item) return;
+
+    setUpdating(id);
+    try {
+      await cartService.removeFromCart(user.user_id, item.product_id);
+      setCartItems(items => items.filter(i => i.id !== id));
+      toast({
+        title: "Item removed",
+        description: "Item has been removed from your cart.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to remove item",
+        variant: "destructive"
+      });
+    } finally {
+      setUpdating(null);
+    }
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -57,19 +135,70 @@ const Cart = () => {
   const deliveryFee = subtotal > 50 ? 0 : 4.99;
   const total = subtotal + tax + deliveryFee;
 
-  const handleCheckout = () => {
-    toast({
-      title: "Proceeding to checkout",
-      description: "Redirecting to payment page...",
-    });
+  const handleCheckout = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please login to proceed with checkout",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      toast({
+        title: "Empty Cart",
+        description: "Please add items to your cart first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const orderData = {
+        user_id: user.user_id,
+        cart_items: cartItems.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        delivery_address: {
+          street: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          country: ""
+        },
+        total_amount: total
+      };
+
+      const response = await orderService.createOrder(orderData);
+      
+      if (response.success) {
+        // Clear cart after successful order
+        await cartService.clearCart(user.user_id);
+        setCartItems([]);
+        
+        toast({
+          title: "Order Placed!",
+          description: `Your order #${response.data?.order_id || ''} has been placed successfully.`,
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Checkout Failed",
+        description: error.response?.data?.message || "Failed to place order. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <Header 
+      <Header
         cartItemCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
-        onSearch={() => {}}
-        onCartClick={() => {}}
+        onSearch={() => { }}
+        onCartClick={() => { }}
         onProfileClick={() => toast({ title: "Profile", description: "Opening user profile..." })}
       />
 
@@ -96,8 +225,8 @@ const Cart = () => {
                 <Card key={item.id} className="border-primary/10">
                   <CardContent className="p-6">
                     <div className="flex gap-4">
-                      <img 
-                        src={item.image} 
+                      <img
+                        src={item.image}
                         alt={item.name}
                         className="w-20 h-20 object-cover rounded-lg"
                       />
@@ -148,7 +277,7 @@ const Cart = () => {
               <Card className="border-primary/10 sticky top-8">
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-lg mb-4">Order Summary</h3>
-                  
+
                   <div className="space-y-3 mb-4">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Subtotal</span>
@@ -174,15 +303,15 @@ const Cart = () => {
                   </div>
 
                   <Separator className="my-4" />
-                  
+
                   <div className="flex justify-between text-lg font-semibold mb-6">
                     <span>Total</span>
                     <span className="text-primary">${total.toFixed(2)}</span>
                   </div>
 
-                  <Button 
-                    variant="hero" 
-                    size="lg" 
+                  <Button
+                    variant="hero"
+                    size="lg"
                     className="w-full group"
                     onClick={handleCheckout}
                   >

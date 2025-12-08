@@ -62,6 +62,12 @@ const authService = {
         return response.data;
     },
 
+    // Update user profile
+    updateProfile: async (userId: string, data: { full_name?: string; phone_number?: string; profile_picture?: string }) => {
+        const response = await apiClient.put(`/auth/users/profile/${userId}`, data);
+        return response.data;
+    },
+
     // Store auth data in localStorage
     setAuthData: (token: string, user: any) => {
         localStorage.setItem('authToken', token);
