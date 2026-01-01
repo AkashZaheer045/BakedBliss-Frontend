@@ -29,9 +29,7 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
             className="flex items-center gap-2 cursor-pointer" 
             onClick={() => navigate("/")}
           >
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">B</span>
-            </div>
+            <img src="/favicon.png" alt="Logo" className="w-10 h-10 rounded-lg object-contain" />
             <div>
               <h1 className="font-bold text-xl text-primary">Baked Bliss</h1>
               <p className="text-xs text-muted-foreground">Fresh from oven</p>

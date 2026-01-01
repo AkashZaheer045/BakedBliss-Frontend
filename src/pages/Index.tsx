@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { CategoriesSection } from "@/components/CategoriesSection";
@@ -10,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 const Index = () => {
   const [cartItemCount, setCartItemCount] = useState(3);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleAddToCart = (productId: string) => {
     setCartItemCount(prev => prev + 1);
@@ -32,14 +34,11 @@ const Index = () => {
       description: `Browsing ${categoryId} category`,
     });
     // Navigate to menu with category filter
-    window.location.href = "/menu";
+    navigate("/menu");
   };
 
   const handleProductClick = (productId: string) => {
-    toast({
-      title: "Product Details",
-      description: `Opening product ${productId}`,
-    });
+    navigate(`/product/${productId}`);
   };
 
   const handleOfferClick = (offerId: string) => {
@@ -54,19 +53,19 @@ const Index = () => {
       <Header 
         cartItemCount={cartItemCount}
         onSearch={handleSearch}
-        onCartClick={() => toast({ title: "Cart", description: "Opening shopping cart..." })}
-        onProfileClick={() => toast({ title: "Profile", description: "Opening user profile..." })}
+        onCartClick={() => navigate('/cart')}
+        onProfileClick={() => navigate('/profile')}
       />
       
       <main>
         <HeroSection 
           onOrderNow={() => {
             toast({ title: "Order Now", description: "Starting quick order process..." });
-            window.location.href = "/menu";
+            navigate("/menu");
           }}
           onExploreMenu={() => {
             toast({ title: "Menu", description: "Browsing full menu..." });
-            window.location.href = "/menu";
+            navigate("/menu");
           }}
         />
         
@@ -77,7 +76,7 @@ const Index = () => {
           onAddToCart={handleAddToCart}
           onViewAll={() => {
             toast({ title: "All Products", description: "Viewing all featured products..." });
-            window.location.href = "/menu";
+            navigate("/menu");
           }}
         />
         

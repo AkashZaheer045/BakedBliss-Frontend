@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,9 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Loader2 } from "lucide-re
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { cartService, orderService } from "@/services";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface CartItem {
   id: string;
@@ -25,7 +29,11 @@ const Cart = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [address, setAddress] = useState({ street: "", city: "", state: "", zipCode: "", country: "" });
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Fetch cart on mount
   useEffect(() => {
@@ -39,7 +47,7 @@ const Cart = () => {
         setLoading(true);
         const response = await cartService.getCart();
         
-        if (response.message === 'Cart retrieved' && response.cart) {
+        if ((response.status === 'success' || response.success) && response.cart) {
           // Map backend cart items to frontend format
           const mappedItems: CartItem[] = (response.cart.items || []).map((item: any) => ({
             id: item.productId?.toString(),
@@ -153,21 +161,25 @@ const Cart = () => {
       return;
     }
 
+    setIsCheckoutOpen(true);
+  };
+
+  const confirmOrder = async () => {
+    if (!address.street || !address.city || !address.zipCode) {
+        toast({ title: "Invaild Address", description: "Please fill in all address fields", variant: "destructive" });
+        return;
+    }
+    
+    setIsProcessing(true);
     try {
       const orderData = {
-        user_id: user.user_id,
+        user_id: user?.user_id || "",
         cart_items: cartItems.map(item => ({
           product_id: item.product_id,
           quantity: item.quantity,
           price: item.price
         })),
-        delivery_address: {
-          street: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          country: ""
-        },
+        delivery_address: address,
         total_amount: total
       };
 
@@ -176,11 +188,12 @@ const Cart = () => {
       if (response.status === 'success' || response.success) {
         // Clear cart after successful order
         await cartService.clearCart();
+        setIsCheckoutOpen(false);
         setCartItems([]);
         
         toast({
           title: "Order Placed!",
-          description: `Your order #${response.data?.order_id || ''} has been placed successfully.`,
+          description: `Your order #${response.orderId || response.order?.order_id || ''} has been placed successfully.`,
         });
       }
     } catch (error: any) {
@@ -198,7 +211,7 @@ const Cart = () => {
         cartItemCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
         onSearch={() => { }}
         onCartClick={() => { }}
-        onProfileClick={() => toast({ title: "Profile", description: "Opening user profile..." })}
+        onProfileClick={() => navigate('/profile')}
       />
 
       <main className="container mx-auto px-4 py-8">
@@ -330,6 +343,45 @@ const Cart = () => {
         )}
       </main>
 
+      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Confirm Delivery Address</DialogTitle>
+                <DialogDescription>Please provide your delivery details.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                    <Label>Street Address</Label>
+                    <Input value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} placeholder="123 Main St" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                            <Label>City</Label>
+                            <Input value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} placeholder="New York" />
+                        </div>
+                        <div className="space-y-2">
+                             <Label>State</Label>
+                             <Input value={address.state} onChange={(e) => setAddress({...address, state: e.target.value})} placeholder="NY" />
+                        </div>
+                        <div className="space-y-2">
+                             <Label>Zip Code</Label>
+                             <Input value={address.zipCode} onChange={(e) => setAddress({...address, zipCode: e.target.value})} placeholder="10001" />
+                        </div>
+                    </div>
+                <div className="space-y-2">
+                    <Label>Country</Label>
+                    <Input value={address.country} onChange={(e) => setAddress({...address, country: e.target.value})} placeholder="United States" />
+                </div>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCheckoutOpen(false)}>Cancel</Button>
+                <Button variant="hero" onClick={confirmOrder} disabled={isProcessing}>
+                    {isProcessing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                    Confirm Order
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Footer />
     </div>
   );

@@ -54,7 +54,7 @@ const productService = {
     // Search products
     searchProducts: async (query: string) => {
         const response = await apiClient.get('/products/search', {
-            params: { q: query }
+            params: { query }
         });
         return response.data;
     },

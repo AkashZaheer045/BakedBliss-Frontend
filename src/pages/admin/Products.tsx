@@ -71,18 +71,26 @@ export const Products = () => {
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
-  // Fetch products
+  // Fetch products with debounce
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchProducts(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (search?: string) => {
     try {
       setLoading(true);
-      const response = await productService.listProducts({});
+      const response = await productService.listProducts({ search });
 
       if (response.status === 'success' && response.data) {
-        const mappedProducts: Product[] = response.data.map((product: any) => ({
+        // Handle both array and paginated object response formats
+        const rawProducts = Array.isArray(response.data) 
+          ? response.data 
+          : (response.data.products || []);
+
+        const mappedProducts: Product[] = rawProducts.map((product: any) => ({
           id: product.id?.toString(),
           name: product.title || "Product",
           category: product.category || "Other",
@@ -231,10 +239,7 @@ export const Products = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
 
   if (loading) {
     return (
@@ -272,7 +277,7 @@ export const Products = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {filteredProducts.length === 0 ? (
+          {products.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               No products found
             </div>
@@ -289,7 +294,7 @@ export const Products = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
                       <div className="flex items-center space-x-3">

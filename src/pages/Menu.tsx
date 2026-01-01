@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
@@ -9,14 +10,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { productService, cartService } from "@/services";
+import { productService, cartService, userService } from "@/services";
 
 const categories = [
   { id: "all", label: "All Items" },
   { id: "pastries", label: "Pastries" },
   { id: "breads", label: "Breads" },
   { id: "desserts", label: "Desserts" },
-  { id: "cupcakes", label: "Cupcakes" }
+  { id: "cupcakes", label: "Cupcakes" },
+  { id: "pizza", label: "Pizza" },
+  { id: "burger", label: "Burger" },
+  { id: "cookies", label: "Cookies" },
+  { id: "snacks", label: "Snacks" },
+  { id: "pasta", label: "Pasta" }
 ];
 
 const Menu = () => {
@@ -24,8 +30,10 @@ const Menu = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState<any[]>([]);
   const [cartItemCount, setCartItemCount] = useState(0);
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   // Load products on mount
@@ -40,7 +48,8 @@ const Menu = () => {
 
         if (response.status === 'success' && response.data) {
           // Map backend fields to frontend format
-          const mappedProducts = response.data.map((product: any) => ({
+          const rawProducts = Array.isArray(response.data) ? response.data : (response.data.products || []);
+          const mappedProducts = rawProducts.map((product: any) => ({
             id: product.id.toString(),
             name: product.title,
             image: product.thumbnail || "/placeholder.svg",
@@ -69,6 +78,20 @@ const Menu = () => {
     loadProducts();
   }, [selectedCategory]);
 
+  // Load favorites
+  useEffect(() => {
+    const loadFavorites = async () => {
+        if (!user) return;
+        try {
+            const response = await userService.getFavorites(user.user_id);
+            if (response.status === 'success' && response.data) {
+                setFavorites(response.data);
+            }
+        } catch (e) { console.error("Failed to load favorites", e); }
+    };
+    loadFavorites();
+  }, [user]);
+
   // Search products
   const handleSearch = async () => {
     if (!searchQuery) return;
@@ -78,7 +101,8 @@ const Menu = () => {
       const response = await productService.searchProducts(searchQuery);
 
       if (response.status === 'success' && response.data) {
-        const mappedProducts = response.data.map((product: any) => ({
+        const rawProducts = Array.isArray(response.data) ? response.data : (response.data.products || []);
+        const mappedProducts = rawProducts.map((product: any) => ({
           id: product.id.toString(),
           name: product.title,
           image: product.thumbnail || "/placeholder.svg",
@@ -91,12 +115,17 @@ const Menu = () => {
         }));
         setProducts(mappedProducts);
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to search products",
-        variant: "destructive"
-      });
+    } catch (error: any) {
+      if (error.response && error.response.status === 404) {
+        setProducts([]);
+        // Suppress error, show empty state
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to search products",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -132,11 +161,32 @@ const Menu = () => {
     }
   };
 
+  const handleToggleFavorite = async (productId: string) => {
+    if (!user) {
+        toast({ title: "Login Required", description: "Please login to manage favorites" });
+        return;
+    }
+    const isFav = favorites.some(f => (f.product?.id?.toString() === productId || f.product_id?.toString() === productId));
+    
+    try {
+        if (isFav) {
+            await userService.removeFavorite(user.user_id, productId);
+            setFavorites(prev => prev.filter(f => (f.product?.id?.toString() !== productId && f.product_id?.toString() !== productId)));
+            toast({ title: "Removed from Favorites" });
+        } else {
+            await userService.addFavorite(user.user_id, productId);
+            // Refresh favorites to get full object or optimistically add
+            const response = await userService.getFavorites(user.user_id);
+            if (response.data) setFavorites(response.data);
+            toast({ title: "Added to Favorites" });
+        }
+    } catch (error) {
+        toast({ title: "Error", description: "Failed to update favorites", variant: "destructive" });
+    }
+  };
+
   const handleProductClick = (productId: string) => {
-    toast({
-      title: "Product Details",
-      description: `Opening product ${productId} details`,
-    });
+    navigate(`/product/${productId}`);
   };
 
   const filteredProducts = searchQuery
@@ -150,8 +200,8 @@ const Menu = () => {
       <Header
         cartItemCount={cartItemCount}
         onSearch={setSearchQuery}
-        onCartClick={() => window.location.href = '/cart'}
-        onProfileClick={() => window.location.href = '/profile'}
+        onCartClick={() => navigate('/cart')}
+        onProfileClick={() => navigate('/profile')}
       />
 
       <main className="container mx-auto px-4 py-8">
@@ -222,7 +272,10 @@ const Menu = () => {
                 key={product.id}
                 {...product}
                 onClick={handleProductClick}
+
                 onAddToCart={handleAddToCart}
+                isFavorite={favorites.some(f => (f.product?.id?.toString() === product.id || f.product_id?.toString() === product.id))}
+                onToggleFavorite={handleToggleFavorite}
               />
             ))}
           </div>

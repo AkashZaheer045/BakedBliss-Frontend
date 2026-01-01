@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,8 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { orderService, authService } from "@/services";
+import { orderService, authService, userService } from "@/services";
+import { ProductCard } from "@/components/ProductCard";
 
 interface Order {
   id: string;
@@ -62,8 +64,10 @@ const Profile = () => {
     joinDate: "",
     membershipLevel: "Member"
   });
+  const [favorites, setFavorites] = useState<any[]>([]);
   const { toast } = useToast();
   const { user, updateUser } = useAuth();
+  const navigate = useNavigate();
 
   // Fetch user data and orders on mount
   useEffect(() => {
@@ -89,8 +93,9 @@ const Profile = () => {
         // Fetch user orders
         try {
           const ordersResponse = await orderService.getUserOrders(user.user_id);
-          if ((ordersResponse.status === 'success' || ordersResponse.success) && ordersResponse.data) {
-            const mappedOrders: Order[] = ordersResponse.data.map((order: any) => ({
+          if (ordersResponse.status === 'success' || ordersResponse.success) {
+            const rawOrders = ordersResponse.orders || ordersResponse.data || [];
+            const mappedOrders: Order[] = rawOrders.map((order: any) => ({
               id: order.id?.toString(),
               order_id: order.order_id || `ORD-${order.id}`,
               date: new Date(order.created_at).toLocaleDateString('en-US', {
@@ -111,9 +116,31 @@ const Profile = () => {
             setStats({
               totalOrders: mappedOrders.length,
               totalSpent: totalSpent,
-              favoriteItems: 0, // Would need a favorites API
-              avgRating: 4.5 // Placeholder
+              favoriteItems: 0,
+              avgRating: 4.5 
             });
+
+            // Fetch favorites
+            try {
+               const favResponse = await userService.getFavorites(user.user_id);
+               if ((favResponse.status === 'success' || favResponse.success) && favResponse.data) {
+                  const favItems = favResponse.data.map((f: any) => ({
+                      id: f.product?.id?.toString() || f.id?.toString(),
+                      name: f.product?.title || f.title,
+                      image: f.product?.thumbnail || f.thumbnail || "/placeholder.svg",
+                      price: f.product?.sale_price || f.product?.price || f.price || 0,
+                      description: f.product?.description || f.description || "",
+                      rating: f.product?.rating || 4.5,
+                      category: f.product?.category || "Treat"
+                  }));
+                  setFavorites(favItems);
+                  
+                  // Update stats with favorites count
+                  setStats(prev => ({ ...prev, favoriteItems: favItems.length }));
+               }
+            } catch (favError) {
+               console.error("Failed to fetch favorites", favError);
+            }
           }
         } catch (orderError) {
           console.error("Failed to fetch orders:", orderError);
@@ -380,18 +407,31 @@ const Profile = () => {
                 <CardTitle>Your Favorite Items</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">No favorites yet</p>
-                  <p className="text-sm text-muted-foreground mt-1">Start adding items to your favorites!</p>
-                </div>
+                {favorites.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-muted-foreground">No favorites yet</p>
+                    <p className="text-sm text-muted-foreground mt-1">Start adding items to your favorites!</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {favorites.map((product) => (
+                      <ProductCard 
+                        key={product.id}
+                        {...product}
+                        onClick={() => navigate(`/product/${product.id}`)}
+                        onAddToCart={() => {}}
+                      />
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Settings Tab */}
           <TabsContent value="settings">
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-1 gap-6">
               <Card className="border-primary/10">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -412,26 +452,6 @@ const Profile = () => {
                     <span>New products</span>
                     <Button variant="outline" size="sm">Disabled</Button>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-primary/10">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-primary" />
-                    Payment Methods
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="border border-primary/10 rounded-lg p-3">
-                    <div className="flex items-center justify-between">
-                      <span>•••• •••• •••• 4532</span>
-                      <Badge>Default</Badge>
-                    </div>
-                  </div>
-                  <Button variant="outline" className="w-full">
-                    Add Payment Method
-                  </Button>
                 </CardContent>
               </Card>
             </div>

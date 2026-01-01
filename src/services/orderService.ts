@@ -43,7 +43,12 @@ export interface UpdateOrderStatusData {
 const orderService = {
     // Create a new order
     createOrder: async (data: CreateOrderData) => {
-        const response = await apiClient.post('/order/create', data);
+        const apiData = {
+            cartItems: data.cart_items,
+            deliveryAddress: data.delivery_address,
+            totalAmount: data.total_amount
+        };
+        const response = await apiClient.post('/order/create', apiData);
         return response.data;
     },
 

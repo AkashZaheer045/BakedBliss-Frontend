@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, Plus } from "lucide-react";
+import { Star, Plus, Heart } from "lucide-react";
 
 interface ProductCardProps {
   id: string;
@@ -13,7 +13,9 @@ interface ProductCardProps {
   reviewCount: number;
   description: string;
   isNew?: boolean;
+  isFavorite?: boolean;
   onAddToCart?: (id: string) => void;
+  onToggleFavorite?: (id: string) => void;
   onClick?: (id: string) => void;
 }
 
@@ -27,7 +29,9 @@ export const ProductCard = ({
   reviewCount, 
   description, 
   isNew,
+  isFavorite,
   onAddToCart,
+  onToggleFavorite,
   onClick 
 }: ProductCardProps) => {
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
@@ -40,18 +44,33 @@ export const ProductCard = ({
             src={image} 
             alt={name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            onError={(e) => { e.currentTarget.src = "/placeholder.svg"; }}
           />
         </div>
-        {isNew && (
-          <Badge className="absolute top-2 left-2 bg-warning text-warning-foreground">
-            New
-          </Badge>
-        )}
-        {discount > 0 && (
-          <Badge className="absolute top-2 right-2 bg-destructive text-destructive-foreground">
-            -{discount}%
-          </Badge>
-        )}
+        <div className="absolute top-2 left-2 flex flex-col gap-2">
+            {isNew && (
+              <Badge className="bg-warning text-warning-foreground">
+                New
+              </Badge>
+            )}
+            {discount > 0 && (
+              <Badge className="bg-destructive text-destructive-foreground">
+                -{discount}%
+              </Badge>
+            )}
+        </div>
+        
+        <Button
+            variant="secondary"
+            size="icon"
+            className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/80 hover:bg-white transition-colors"
+            onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite?.(id);
+            }}
+        >
+            <Heart className={`w-4 h-4 ${isFavorite ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
+        </Button>
       </div>
       
       <CardContent className="p-4">

@@ -6,18 +6,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Phone, Mail, Clock, MessageCircle, Send, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { contactService } from "@/services";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
     email: "",
     subject: "",
     message: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +27,7 @@ const Contact = () => {
 
     try {
       const response = await contactService.sendMessage({
-        name: formData.name,
+        fullName: formData.fullName,
         email: formData.email,
         subject: formData.subject,
         message: formData.message
@@ -36,7 +38,7 @@ const Contact = () => {
           title: "Message sent!",
           description: "Thank you for contacting us. We'll get back to you soon!",
         });
-        setFormData({ name: "", email: "", subject: "", message: "" });
+        setFormData({ fullName: "", email: "", subject: "", message: "" });
       }
     } catch (error: any) {
       toast({
@@ -100,8 +102,8 @@ const Contact = () => {
       <Header
         cartItemCount={0}
         onSearch={() => { }}
-        onCartClick={() => toast({ title: "Cart", description: "Opening shopping cart..." })}
-        onProfileClick={() => toast({ title: "Profile", description: "Opening user profile..." })}
+        onCartClick={() => navigate('/cart')}
+        onProfileClick={() => navigate('/profile')}
       />
 
       <main>
@@ -136,13 +138,13 @@ const Contact = () => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
-                          <label htmlFor="name" className="text-sm font-medium mb-2 block">
+                          <label htmlFor="fullName" className="text-sm font-medium mb-2 block">
                             Full Name *
                           </label>
                           <Input
-                            id="name"
-                            name="name"
-                            value={formData.name}
+                            id="fullName"
+                            name="fullName"
+                            value={formData.fullName}
                             onChange={handleInputChange}
                             placeholder="Your full name"
                             required

@@ -5,6 +5,7 @@ export { default as cartService } from './cartService';
 export { default as orderService } from './orderService';
 export { default as adminService } from './adminService';
 export { default as contactService } from './contactService';
+export { default as userService } from './userService';
 export { default as apiClient } from './api';
 
 // Export types

@@ -53,11 +53,10 @@ const cartService = {
         return response.data;
     },
 
-    // Clear entire cart (would need backend endpoint)
+    // Clear entire cart
     clearCart: async () => {
-        // Note: Backend doesn't have a clear cart endpoint yet
-        // For now, we'll just return success
-        return { status: 'success' };
+        const response = await apiClient.delete('/cart/clear');
+        return response.data;
     },
 };
 

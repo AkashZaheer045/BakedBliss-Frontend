@@ -64,7 +64,12 @@ const authService = {
 
     // Update user profile
     updateProfile: async (userId: string, data: { full_name?: string; phone_number?: string; profile_picture?: string }) => {
-        const response = await apiClient.put(`/auth/users/profile/${userId}`, data);
+        const apiData = {
+            fullName: data.full_name,
+            phoneNumber: data.phone_number,
+            profilePicture: data.profile_picture
+        };
+        const response = await apiClient.put(`/auth/users/profile/${userId}`, apiData);
         return response.data;
     },
 
