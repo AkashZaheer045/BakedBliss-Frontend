@@ -37,13 +37,13 @@ const Cart = () => {
 
       try {
         setLoading(true);
-        const response = await cartService.getCart(user.user_id);
+        const response = await cartService.getCart();
         
-        if (response.success && response.data) {
+        if (response.message === 'Cart retrieved' && response.cart) {
           // Map backend cart items to frontend format
-          const mappedItems: CartItem[] = (response.data.items || []).map((item: any) => ({
-            id: item.id?.toString() || item.product_id?.toString(),
-            product_id: item.product_id,
+          const mappedItems: CartItem[] = (response.cart.items || []).map((item: any) => ({
+            id: item.productId?.toString(),
+            product_id: item.productId,
             name: item.title || item.name || "Product",
             image: item.thumbnail || "/placeholder.svg",
             price: parseFloat(item.price) || 0,
@@ -84,8 +84,7 @@ const Cart = () => {
     setUpdating(id);
     try {
       await cartService.updateCartItem({
-        user_id: user.user_id,
-        product_id: item.product_id,
+        productId: item.product_id,
         quantity: newQuantity
       });
 
@@ -113,7 +112,7 @@ const Cart = () => {
 
     setUpdating(id);
     try {
-      await cartService.removeFromCart(user.user_id, item.product_id);
+      await cartService.removeFromCart(item.product_id);
       setCartItems(items => items.filter(i => i.id !== id));
       toast({
         title: "Item removed",
@@ -174,9 +173,9 @@ const Cart = () => {
 
       const response = await orderService.createOrder(orderData);
       
-      if (response.success) {
+      if (response.status === 'success' || response.success) {
         // Clear cart after successful order
-        await cartService.clearCart(user.user_id);
+        await cartService.clearCart();
         setCartItems([]);
         
         toast({

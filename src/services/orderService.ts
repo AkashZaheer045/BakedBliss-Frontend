@@ -1,5 +1,12 @@
 import apiClient from './api';
-import { CartItem } from './cartService';
+
+// Order-specific cart item (backend may expect different field names)
+export interface OrderCartItem {
+    product_id: number;
+    quantity: number;
+    price: number;
+    title?: string;
+}
 
 export interface DeliveryAddress {
     street: string;
@@ -11,7 +18,7 @@ export interface DeliveryAddress {
 
 export interface CreateOrderData {
     user_id: string;
-    cart_items: CartItem[];
+    cart_items: OrderCartItem[];
     delivery_address: DeliveryAddress;
     total_amount: number;
 }
@@ -20,7 +27,7 @@ export interface Order {
     id: number;
     order_id: string;
     user_id: string;
-    cart_items: CartItem[];
+    cart_items: OrderCartItem[];
     delivery_address: DeliveryAddress;
     status: string;
     total_amount: number;

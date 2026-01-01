@@ -34,7 +34,7 @@ export const TopProducts = () => {
         setLoading(true);
         const response = await adminService.getProductAnalytics();
 
-        if (response.success && response.data) {
+        if (response.status === 'success' && response.data) {
           const mappedProducts: Product[] = (response.data.topProducts || response.data || [])
             .slice(0, 5)
             .map((product: any) => ({

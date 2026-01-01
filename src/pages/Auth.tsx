@@ -60,9 +60,9 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
 
         // Signup using AuthContext
         await signup({
-          full_name: formData.name,
+          fullName: formData.name,
           email: formData.email,
-          phone_number: formData.phone,
+          phoneNumber: formData.phone,
           password: formData.password
         });
 

@@ -81,7 +81,7 @@ export const Products = () => {
       setLoading(true);
       const response = await productService.listProducts({});
 
-      if (response.success && response.data) {
+      if (response.status === 'success' && response.data) {
         const mappedProducts: Product[] = response.data.map((product: any) => ({
           id: product.id?.toString(),
           name: product.title || "Product",
@@ -133,7 +133,7 @@ export const Products = () => {
         stock: parseInt(formData.stock)
       });
 
-      if (response.success) {
+      if (response.status === 'success' || response.success) {
         toast({
           title: "Success",
           description: "Product created successfully"
@@ -167,7 +167,7 @@ export const Products = () => {
         stock: parseInt(formData.stock)
       });
 
-      if (response.success) {
+      if (response.status === 'success' || response.success) {
         toast({
           title: "Success",
           description: "Product updated successfully"
@@ -194,7 +194,7 @@ export const Products = () => {
     try {
       const response = await productService.deleteProduct(parseInt(selectedProduct.id));
 
-      if (response.success) {
+      if (response.status === 'success' || response.success) {
         toast({
           title: "Success",
           description: "Product deleted successfully"

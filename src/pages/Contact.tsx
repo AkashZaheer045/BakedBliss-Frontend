@@ -31,7 +31,7 @@ const Contact = () => {
         message: formData.message
       });
 
-      if (response.success) {
+      if (response.status === 'success' || response.success) {
         toast({
           title: "Message sent!",
           description: "Thank you for contacting us. We'll get back to you soon!",

@@ -1,9 +1,9 @@
 import apiClient from './api';
 
 export interface CartItem {
-    product_id: number;
+    productId: number;
     quantity: number;
-    price: number;
+    price?: number;
     title?: string;
     thumbnail?: string;
 }
@@ -17,21 +17,19 @@ export interface Cart {
 }
 
 export interface AddToCartData {
-    user_id: string;
-    product_id: number;
+    productId: number;
     quantity: number;
 }
 
 export interface UpdateCartItemData {
-    user_id: string;
-    product_id: number;
+    productId: number;
     quantity: number;
 }
 
 const cartService = {
-    // Get user's cart
-    getCart: async (userId: string) => {
-        const response = await apiClient.get(`/cart/${userId}`);
+    // Get user's cart (uses JWT token for user identification)
+    getCart: async () => {
+        const response = await apiClient.get('/cart/view');
         return response.data;
     },
 
@@ -48,18 +46,20 @@ const cartService = {
     },
 
     // Remove item from cart
-    removeFromCart: async (userId: string, productId: number) => {
+    removeFromCart: async (productId: number) => {
         const response = await apiClient.delete('/cart/remove', {
-            data: { user_id: userId, product_id: productId }
+            data: { productId }
         });
         return response.data;
     },
 
-    // Clear entire cart
-    clearCart: async (userId: string) => {
-        const response = await apiClient.delete(`/cart/clear/${userId}`);
-        return response.data;
+    // Clear entire cart (would need backend endpoint)
+    clearCart: async () => {
+        // Note: Backend doesn't have a clear cart endpoint yet
+        // For now, we'll just return success
+        return { status: 'success' };
     },
 };
 
 export default cartService;
+

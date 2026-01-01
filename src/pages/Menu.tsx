@@ -38,7 +38,7 @@ const Menu = () => {
           search: searchQuery || undefined
         });
 
-        if (response.success && response.data) {
+        if (response.status === 'success' && response.data) {
           // Map backend fields to frontend format
           const mappedProducts = response.data.map((product: any) => ({
             id: product.id.toString(),
@@ -77,7 +77,7 @@ const Menu = () => {
       setLoading(true);
       const response = await productService.searchProducts(searchQuery);
 
-      if (response.success && response.data) {
+      if (response.status === 'success' && response.data) {
         const mappedProducts = response.data.map((product: any) => ({
           id: product.id.toString(),
           name: product.title,
@@ -114,8 +114,7 @@ const Menu = () => {
 
     try {
       await cartService.addToCart({
-        user_id: user.user_id,
-        product_id: parseInt(productId),
+        productId: parseInt(productId),
         quantity: 1
       });
 

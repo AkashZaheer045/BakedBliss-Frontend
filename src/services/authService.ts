@@ -1,9 +1,9 @@
 import apiClient from './api';
 
 export interface SignUpData {
-    full_name: string;
+    fullName: string;
     email: string;
-    phone_number?: string;
+    phoneNumber?: string;
     password: string;
     role?: 'user' | 'admin';
 }
@@ -22,19 +22,19 @@ export interface SocialLoginData {
 }
 
 export interface AuthResponse {
-    success: boolean;
     message: string;
     data: {
-        user: {
-            user_id: string;
-            full_name: string;
-            email: string;
-            phone_number?: string;
-            role: string;
-            profile_picture?: string;
-        };
-        token: string;
+        userId: string;
+        fullName: string;
+        email: string;
+        phoneNumber?: string;
+        role: string;
+        profilePicture?: string;
+        addresses?: any[];
+        dateJoined?: string;
+        selectedAddressId?: string | null;
     };
+    token: string;
 }
 
 const authService = {

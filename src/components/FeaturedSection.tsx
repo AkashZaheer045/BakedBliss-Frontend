@@ -1,13 +1,17 @@
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import chocolateCroissant from "@/assets/chocolate-croissant.png";
+import sourdoughBread from "@/assets/sourdough-bread.png";
+import strawberryCheesecake from "@/assets/strawberry-cheesecake.png";
+import rainbowMacarons from "@/assets/rainbow-macarons.png";
 
 // Mock data for featured products
 const featuredProducts = [
   {
     id: "1",
     name: "Classic Chocolate Croissant",
-    image: "/placeholder.svg",
+    image: chocolateCroissant,
     price: 4.99,
     originalPrice: 6.99,
     rating: 4.8,
@@ -18,7 +22,7 @@ const featuredProducts = [
   {
     id: "2", 
     name: "Artisan Sourdough Bread",
-    image: "/placeholder.svg",
+    image: sourdoughBread,
     price: 8.99,
     rating: 4.9,
     reviewCount: 89,
@@ -27,7 +31,7 @@ const featuredProducts = [
   {
     id: "3",
     name: "Strawberry Cheesecake Slice", 
-    image: "/placeholder.svg",
+    image: strawberryCheesecake,
     price: 6.99,
     originalPrice: 8.99,
     rating: 4.7,
@@ -37,7 +41,7 @@ const featuredProducts = [
   {
     id: "4",
     name: "Rainbow Macarons Box",
-    image: "/placeholder.svg", 
+    image: rainbowMacarons, 
     price: 12.99,
     rating: 4.9,
     reviewCount: 203,

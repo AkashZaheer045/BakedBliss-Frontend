@@ -2,6 +2,7 @@ import { CategoryCard } from "@/components/CategoryCard";
 import cupcakesCategory from "@/assets/cupcakes-category.jpg";
 import breadCategory from "@/assets/bread-category.jpg";
 import dessertsCategory from "@/assets/desserts-category.jpg";
+import pastriesCategory from "@/assets/pastries-category.png";
 
 const categories = [
   {
@@ -25,7 +26,7 @@ const categories = [
   {
     id: "pastries",
     title: "Fresh Pastries",
-    image: "/placeholder.svg",
+    image: pastriesCategory,
     itemCount: 16
   }
 ];

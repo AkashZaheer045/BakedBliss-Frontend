@@ -72,7 +72,7 @@ export const RecentOrders = () => {
         setLoading(true);
         const response = await orderService.getAllOrders({ limit: 5, page: 1 });
 
-        if (response.success && response.data) {
+        if ((response.status === 'success' || response.success) && response.data) {
           const mappedOrders: Order[] = response.data.orders?.map((order: any) => ({
             id: order.id?.toString(),
             order_id: order.order_id || `ORD-${order.id}`,

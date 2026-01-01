@@ -89,7 +89,7 @@ const Profile = () => {
         // Fetch user orders
         try {
           const ordersResponse = await orderService.getUserOrders(user.user_id);
-          if (ordersResponse.success && ordersResponse.data) {
+          if ((ordersResponse.status === 'success' || ordersResponse.success) && ordersResponse.data) {
             const mappedOrders: Order[] = ordersResponse.data.map((order: any) => ({
               id: order.id?.toString(),
               order_id: order.order_id || `ORD-${order.id}`,
@@ -145,7 +145,7 @@ const Profile = () => {
         phone_number: userInfo.phone
       });
 
-      if (response.success) {
+      if (response.status === 'success' || response.success) {
         // Update auth context
         updateUser({
           ...user,

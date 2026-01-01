@@ -40,10 +40,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const login = async (email: string, password: string) => {
         try {
-            const response: AuthResponse = await authService.signIn({ email, password });
+            const response = await authService.signIn({ email, password });
 
-            if (response.success && response.data) {
-                const { user: userData, token: authToken } = response.data;
+            // Backend returns { message: "success", data: {...userData}, token: "..." }
+            if (response.message === 'success' && response.data && response.token) {
+                // Map backend camelCase response to frontend snake_case User interface
+                const userData: User = {
+                    user_id: response.data.userId,
+                    full_name: response.data.fullName,
+                    email: response.data.email,
+                    phone_number: response.data.phoneNumber,
+                    role: response.data.role,
+                    profile_picture: response.data.profilePicture,
+                };
+                const authToken = response.token;
 
                 // Save to state
                 setUser(userData);
@@ -62,10 +72,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const signup = async (data: any) => {
         try {
-            const response: AuthResponse = await authService.signUp(data);
+            const response = await authService.signUp(data);
 
-            if (response.success && response.data) {
-                const { user: userData, token: authToken } = response.data;
+            // Backend returns { message: "success", data: {...userData}, token: "..." }
+            if (response.message === 'success' && response.data && response.token) {
+                // Map backend camelCase response to frontend snake_case User interface
+                const userData: User = {
+                    user_id: response.data.userId,
+                    full_name: response.data.fullName,
+                    email: response.data.email,
+                    phone_number: response.data.phoneNumber,
+                    role: response.data.role,
+                    profile_picture: response.data.profilePicture,
+                };
+                const authToken = response.token;
 
                 // Save to state
                 setUser(userData);
