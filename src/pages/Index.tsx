@@ -53,7 +53,7 @@ const Index = () => {
       <Header 
         cartItemCount={cartItemCount}
         onSearch={handleSearch}
-        onCartClick={() => navigate('/cart')}
+        onCartClick={() => {}}
         onProfileClick={() => navigate('/profile')}
       />
       

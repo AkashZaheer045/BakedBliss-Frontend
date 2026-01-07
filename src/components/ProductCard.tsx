@@ -63,8 +63,9 @@ export const ProductCard = ({
         <Button
             variant="secondary"
             size="icon"
-            className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/80 hover:bg-white transition-colors"
+            className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/80 hover:bg-white transition-colors z-10"
             onClick={(e) => {
+                console.log('Heart clicked for:', id);
                 e.stopPropagation();
                 onToggleFavorite?.(id);
             }}

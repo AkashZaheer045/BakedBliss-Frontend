@@ -162,6 +162,7 @@ const Menu = () => {
   };
 
   const handleToggleFavorite = async (productId: string) => {
+    console.log('Toggling favorite for:', productId, 'User:', user);
     if (!user) {
         toast({ title: "Login Required", description: "Please login to manage favorites" });
         return;

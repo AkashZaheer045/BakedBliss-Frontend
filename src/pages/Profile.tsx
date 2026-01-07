@@ -24,6 +24,16 @@ import {
   Bell,
   Loader2
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { orderService, authService, userService } from "@/services";
@@ -96,16 +106,16 @@ const Profile = () => {
           if (ordersResponse.status === 'success' || ordersResponse.success) {
             const rawOrders = ordersResponse.orders || ordersResponse.data || [];
             const mappedOrders: Order[] = rawOrders.map((order: any) => ({
-              id: order.id?.toString(),
-              order_id: order.order_id || `ORD-${order.id}`,
-              date: new Date(order.created_at).toLocaleDateString('en-US', {
+              id: order.orderId?.toString() || order.id?.toString(), // Use orderId as primary ID if available
+              order_id: order.orderId || `ORD-${order.id}`,
+              date: new Date(order.createdAt || order.created_at).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric'
               }),
               status: order.status || 'Pending',
-              total: parseFloat(order.total_amount) || 0,
-              items: order.cart_items?.map((item: any) =>
+              total: parseFloat(order.totalAmount || order.total_amount) || 0,
+              items: (order.cartItems || order.cart_items)?.map((item: any) =>
                 `${item.title || 'Item'} x${item.quantity}`
               ) || []
             }));
@@ -197,6 +207,30 @@ const Profile = () => {
     }
   };
 
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
+
+  const confirmCancelOrder = async () => {
+    if (!orderToCancel) return;
+    const orderId = orderToCancel;
+    
+    // Close dialog
+    setOrderToCancel(null);
+    setCancellingId(orderId);
+
+    try {
+        const response = await orderService.cancelOrder(orderId);
+        if(response.status === 'success') {
+            toast({ title: "Order Cancelled", description: "Your order has been cancelled successfully." });
+            setOrders(prev => prev.map(o => o.order_id === orderId ? { ...o, status: 'Cancelled' } : o));
+        }
+    } catch (error: any) {
+        toast({ title: "Error", description: error.response?.data?.message || "Failed to cancel order", variant: "destructive" });
+    } finally {
+        setCancellingId(null);
+    }
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setUserInfo(prev => ({ ...prev, [field]: value }));
   };
@@ -214,7 +248,7 @@ const Profile = () => {
       <Header
         cartItemCount={0}
         onSearch={() => { }}
-        onCartClick={() => window.location.href = '/cart'}
+        onCartClick={() => navigate('/cart')}
         onProfileClick={() => { }}
       />
 
@@ -391,7 +425,18 @@ const Profile = () => {
                           <span className="font-bold text-primary">${order.total.toFixed(2)}</span>
                         </div>
                         <p className="text-sm text-muted-foreground mb-2">{order.date}</p>
-                        <p className="text-sm">{order.items.join(', ') || 'No items'}</p>
+                        <p className="text-sm mb-3">{order.items.join(', ') || 'No items'}</p>
+                        {order.status === 'Pending' && (
+                            <Button 
+                                variant="destructive" 
+                                size="sm" 
+                                onClick={() => setOrderToCancel(order.order_id)}
+                                disabled={cancellingId === order.order_id}
+                            >
+                                {cancellingId === order.order_id && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                Cancel Order
+                            </Button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -457,6 +502,23 @@ const Profile = () => {
             </div>
           </TabsContent>
         </Tabs>
+        
+        <AlertDialog open={!!orderToCancel} onOpenChange={(open) => !open && setOrderToCancel(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently cancel your order.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmCancelOrder} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Yes, Cancel Order
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
 
       <Footer />

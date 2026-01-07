@@ -22,43 +22,48 @@ export interface SocialLoginData {
 }
 
 export interface AuthResponse {
+    status: string;
+    statusCode: number;
     message: string;
     data: {
-        userId: string;
-        fullName: string;
-        email: string;
-        phoneNumber?: string;
-        role: string;
-        profilePicture?: string;
-        addresses?: any[];
-        dateJoined?: string;
-        selectedAddressId?: string | null;
+        user: {
+            userId: string;
+            fullName: string;
+            email: string;
+            phoneNumber?: string;
+            role: string;
+            profilePicture?: string;
+            addresses?: any[];
+            dateJoined?: string;
+            selectedAddressId?: string | null;
+        };
+        accessToken: string;
+        refreshToken: string;
     };
-    token: string;
 }
 
 const authService = {
     // Sign up a new user
     signUp: async (data: SignUpData): Promise<AuthResponse> => {
-        const response = await apiClient.post('/auth/users/register', data);
+        const response = await apiClient.post('/auth/register', data);
         return response.data;
     },
 
     // Sign in existing user
     signIn: async (data: SignInData): Promise<AuthResponse> => {
-        const response = await apiClient.post('/auth/users/signin', data);
+        const response = await apiClient.post('/auth/login', data);
         return response.data;
     },
 
     // Social login
     socialLogin: async (data: SocialLoginData): Promise<AuthResponse> => {
-        const response = await apiClient.post('/auth/users/social-login', data);
+        const response = await apiClient.post('/auth/social-login', data);
         return response.data;
     },
 
     // Get user profile
     getUserProfile: async (userId: string) => {
-        const response = await apiClient.get(`/auth/users/profile/${userId}`);
+        const response = await apiClient.get(`/users/profile/${userId}`);
         return response.data;
     },
 
@@ -69,7 +74,7 @@ const authService = {
             phoneNumber: data.phone_number,
             profilePicture: data.profile_picture
         };
-        const response = await apiClient.put(`/auth/users/profile/${userId}`, apiData);
+        const response = await apiClient.put(`/users/profile/${userId}`, apiData);
         return response.data;
     },
 

@@ -41,27 +41,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const login = async (email: string, password: string) => {
         try {
             const response = await authService.signIn({ email, password });
+            
+            // Debug logging
+            console.log('[Auth] Login response:', response);
+            console.log('[Auth] Status:', response.status);
+            console.log('[Auth] Data:', response.data);
+            console.log('[Auth] AccessToken exists:', !!response.data?.accessToken);
 
-            // Backend returns { message: "success", data: {...userData}, token: "..." }
-            if (response.message === 'success' && response.data && response.token) {
+            // Backend returns { status: "success", data: { user: {...}, accessToken, refreshToken } }
+            if (response.status === 'success' && response.data?.user && response.data?.accessToken) {
                 // Map backend camelCase response to frontend snake_case User interface
                 const userData: User = {
-                    user_id: response.data.userId,
-                    full_name: response.data.fullName,
-                    email: response.data.email,
-                    phone_number: response.data.phoneNumber,
-                    role: response.data.role,
-                    profile_picture: response.data.profilePicture,
+                    user_id: response.data.user.userId,
+                    full_name: response.data.user.fullName,
+                    email: response.data.user.email,
+                    phone_number: response.data.user.phoneNumber,
+                    role: response.data.user.role,
+                    profile_picture: response.data.user.profilePicture,
                 };
-                const authToken = response.token;
+                const authToken = response.data.accessToken;
+                
+                console.log('[Auth] Saving token:', authToken?.substring(0, 20) + '...');
 
                 // Save to state
                 setUser(userData);
                 setToken(authToken);
 
-                // Save to localStorage
+                // Save to localStorage (also save refreshToken for later use)
                 authService.setAuthData(authToken, userData);
+                if (response.data.refreshToken) {
+                    localStorage.setItem('refreshToken', response.data.refreshToken);
+                }
+                
+                console.log('[Auth] Token saved to localStorage:', localStorage.getItem('authToken')?.substring(0, 20) + '...');
             } else {
+                console.error('[Auth] Response check failed:', {
+                    status: response.status,
+                    hasUser: !!response.data?.user,
+                    hasAccessToken: !!response.data?.accessToken
+                });
                 throw new Error(response.message || 'Login failed');
             }
         } catch (error: any) {
@@ -74,18 +92,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             const response = await authService.signUp(data);
 
-            // Backend returns { message: "success", data: {...userData}, token: "..." }
-            if (response.message === 'success' && response.data && response.token) {
+            // Backend returns { status: "success", data: { user: {...}, accessToken, refreshToken } }
+            if (response.status === 'success' && response.data?.user && response.data?.accessToken) {
                 // Map backend camelCase response to frontend snake_case User interface
                 const userData: User = {
-                    user_id: response.data.userId,
-                    full_name: response.data.fullName,
-                    email: response.data.email,
-                    phone_number: response.data.phoneNumber,
-                    role: response.data.role,
-                    profile_picture: response.data.profilePicture,
+                    user_id: response.data.user.userId,
+                    full_name: response.data.user.fullName,
+                    email: response.data.user.email,
+                    phone_number: response.data.user.phoneNumber,
+                    role: response.data.user.role,
+                    profile_picture: response.data.user.profilePicture,
                 };
-                const authToken = response.token;
+                const authToken = response.data.accessToken;
 
                 // Save to state
                 setUser(userData);
@@ -93,6 +111,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
                 // Save to localStorage
                 authService.setAuthData(authToken, userData);
+                if (response.data.refreshToken) {
+                    localStorage.setItem('refreshToken', response.data.refreshToken);
+                }
             } else {
                 throw new Error(response.message || 'Signup failed');
             }

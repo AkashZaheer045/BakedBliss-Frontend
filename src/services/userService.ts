@@ -19,19 +19,19 @@ export interface FavoriteItem {
 const userService = {
     // Get user favorites
     getFavorites: async (userId: string) => {
-        const response = await apiClient.get(`/user/${userId}/favorites`);
+        const response = await apiClient.get(`/users/${userId}/favorites`);
         return response.data;
     },
 
     // Add to favorites
     addFavorite: async (userId: string, productId: number | string) => {
-        const response = await apiClient.post(`/user/${userId}/favorites`, { productId });
+        const response = await apiClient.post(`/users/${userId}/favorites`, { productId });
         return response.data;
     },
 
     // Remove from favorites
     removeFavorite: async (userId: string, productId: number | string) => {
-        const response = await apiClient.delete(`/user/${userId}/favorites/${productId}`);
+        const response = await apiClient.delete(`/users/${userId}/favorites/${productId}`);
         return response.data;
     }
 };

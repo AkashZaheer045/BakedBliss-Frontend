@@ -44,9 +44,12 @@ const orderService = {
     // Create a new order
     createOrder: async (data: CreateOrderData) => {
         const apiData = {
-            cartItems: data.cart_items,
-            deliveryAddress: data.delivery_address,
-            totalAmount: data.total_amount
+            cart_items: data.cart_items,
+            delivery_address: {
+                ...data.delivery_address,
+                zip_code: data.delivery_address.zipCode
+            },
+            total_amount: data.total_amount
         };
         const response = await apiClient.post('/order/create', apiData);
         return response.data;
@@ -78,7 +81,7 @@ const orderService = {
 
     // Cancel order
     cancelOrder: async (orderId: string) => {
-        const response = await apiClient.put(`/order/cancel/${orderId}`);
+        const response = await apiClient.put(`/order/cancel/${orderId}`, {});
         return response.data;
     },
 

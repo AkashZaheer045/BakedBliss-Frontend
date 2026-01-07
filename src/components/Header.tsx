@@ -79,7 +79,14 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative"
+              onClick={() => {
+                navigate("/profile");
+              }}
+            >
               <Heart className="w-5 h-5" />
             </Button>
             

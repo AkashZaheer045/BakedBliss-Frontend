@@ -29,8 +29,12 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
-        if (error.response?.status === 401) {
-            // Token expired or invalid
+        // Only redirect on 401 for non-auth endpoints
+        // Don't redirect for login/register failures
+        const isAuthEndpoint = error.config?.url?.includes('/auth/');
+        
+        if (error.response?.status === 401 && !isAuthEndpoint) {
+            // Token expired or invalid - only redirect for protected routes
             localStorage.removeItem('authToken');
             localStorage.removeItem('user');
             window.location.href = '/';
