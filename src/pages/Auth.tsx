@@ -95,37 +95,38 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex flex-col items-center justify-center p-4 safe-bottom">
+      <div className="w-full max-w-md space-y-4 sm:space-y-6">
         {/* Back Button */}
         <Button
           variant="ghost"
           onClick={onBack}
-          className="self-start"
+          className="self-start text-sm"
+          size="sm"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-4 h-4 mr-1.5" />
           Back
         </Button>
 
         {/* Logo */}
-        <div className="text-center">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        <div className="text-center space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Baked Bliss
           </h1>
-          <p className="text-muted-foreground mt-2">Welcome back to your bakery</p>
+          <p className="text-sm text-muted-foreground">Welcome back to your bakery</p>
         </div>
 
         {/* Auth Tabs */}
-        <Card>
+        <Card className="border-primary/10">
           <Tabs defaultValue="login" className="w-full">
-            <CardHeader>
+            <CardHeader className="pb-2 sm:pb-4">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="login" className="text-sm">Login</TabsTrigger>
+                <TabsTrigger value="signup" className="text-sm">Sign Up</TabsTrigger>
               </TabsList>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="pt-2">
               {/* Login Tab */}
               <TabsContent value="login" className="space-y-4">
                 <div className="text-center mb-4">

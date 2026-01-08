@@ -20,7 +20,6 @@ export const RoleSelection = ({ onRoleSelect }: RoleSelectionProps) => {
         'Browse products',
         'Place orders',
         'Track deliveries',
-        'Write reviews',
         'Manage favorites'
       ],
       gradient: 'from-primary/20 to-accent/20'
@@ -34,7 +33,6 @@ export const RoleSelection = ({ onRoleSelect }: RoleSelectionProps) => {
         'Manage products',
         'Process orders',
         'View analytics',
-        'Handle customers',
         'Control inventory'
       ],
       gradient: 'from-accent/20 to-primary/20'
@@ -42,20 +40,20 @@ export const RoleSelection = ({ onRoleSelect }: RoleSelectionProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-4xl space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-background flex flex-col items-center justify-center p-4 safe-bottom">
+      <div className="w-full max-w-lg sm:max-w-4xl space-y-6 sm:space-y-8">
         {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        <div className="text-center space-y-2 sm:space-y-4">
+          <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Welcome to Baked Bliss
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-sm sm:text-lg text-muted-foreground">
             Choose your role to continue
           </p>
         </div>
 
         {/* Role Cards */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 sm:gap-6">
           {roles.map((role) => {
             const Icon = role.icon;
             const isSelected = selectedRole === role.id;
@@ -63,27 +61,27 @@ export const RoleSelection = ({ onRoleSelect }: RoleSelectionProps) => {
             return (
               <Card 
                 key={role.id}
-                className={`cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+                className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
                   isSelected 
-                    ? 'ring-2 ring-primary shadow-xl scale-105' 
+                    ? 'ring-2 ring-primary shadow-lg' 
                     : 'hover:ring-1 hover:ring-primary/50'
                 }`}
                 onClick={() => setSelectedRole(role.id)}
               >
-                <CardHeader className="text-center">
-                  <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${role.gradient} flex items-center justify-center mx-auto mb-4`}>
-                    <Icon className="w-10 h-10 text-primary" />
+                <CardHeader className="text-center pb-2 sm:pb-4">
+                  <div className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br ${role.gradient} flex items-center justify-center mx-auto mb-2 sm:mb-4`}>
+                    <Icon className="w-7 h-7 sm:w-10 sm:h-10 text-primary" />
                   </div>
-                  <CardTitle className="text-2xl">{role.title}</CardTitle>
-                  <CardDescription className="text-base">
+                  <CardTitle className="text-lg sm:text-2xl">{role.title}</CardTitle>
+                  <CardDescription className="text-xs sm:text-base">
                     {role.description}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
+                <CardContent className="pt-0">
+                  <ul className="space-y-1.5 sm:space-y-2">
                     {role.features.map((feature, index) => (
-                      <li key={index} className="flex items-center text-sm text-muted-foreground">
-                        <div className="w-1.5 h-1.5 bg-primary rounded-full mr-3" />
+                      <li key={index} className="flex items-center text-xs sm:text-sm text-muted-foreground">
+                        <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2 sm:mr-3 shrink-0" />
                         {feature}
                       </li>
                     ))}
@@ -96,10 +94,10 @@ export const RoleSelection = ({ onRoleSelect }: RoleSelectionProps) => {
 
         {/* Continue Button */}
         {selectedRole && (
-          <div className="text-center animate-fade-in">
+          <div className="text-center animate-fade-in pt-2">
             <Button 
               size="lg" 
-              className="px-8"
+              className="w-full sm:w-auto px-8"
               onClick={() => onRoleSelect(selectedRole)}
             >
               Continue as {selectedRole === 'customer' ? 'Customer' : 'Admin'}

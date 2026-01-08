@@ -261,60 +261,65 @@ const Profile = () => {
         onProfileClick={() => { }}
       />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-4 sm:py-8">
         {/* Profile Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <Card className="border-primary/10">
-            <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                <Avatar className="w-20 h-20">
-                  <AvatarImage src={user?.profile_picture} alt={userInfo.name} />
-                  <AvatarFallback className="text-xl bg-primary/10 text-primary">
-                    {userInfo.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="flex-1">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h1 className="text-3xl font-bold text-foreground mb-2">{userInfo.name || 'User'}</h1>
-                      <Badge className="mb-3 bg-warning text-warning-foreground">
-                        {userInfo.membershipLevel}
-                      </Badge>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          Member since {userInfo.joinDate}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Package className="w-4 h-4" />
-                          {stats.totalOrders} orders
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Heart className="w-4 h-4" />
-                          {stats.favoriteItems} favorites
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setEditMode(!editMode)}
-                        className="flex items-center gap-2"
-                      >
-                        <Edit className="w-4 h-4" />
-                        {editMode ? 'Cancel' : 'Edit Profile'}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={handleLogout}
-                        className="flex items-center gap-2"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Logout
-                      </Button>
-                    </div>
+            <CardContent className="p-4 sm:p-8">
+              <div className="flex flex-col gap-4 sm:gap-6">
+                {/* Avatar and Name Row */}
+                <div className="flex items-center gap-4">
+                  <Avatar className="w-16 h-16 sm:w-20 sm:h-20 shrink-0">
+                    <AvatarImage src={user?.profile_picture} alt={userInfo.name} />
+                    <AvatarFallback className="text-lg sm:text-xl bg-primary/10 text-primary">
+                      {userInfo.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-xl sm:text-3xl font-bold text-foreground truncate">{userInfo.name || 'User'}</h1>
+                    <Badge className="mt-1 bg-warning text-warning-foreground text-xs">
+                      {userInfo.membershipLevel}
+                    </Badge>
                   </div>
+                </div>
+
+                {/* Stats Row */}
+                <div className="flex items-center justify-around sm:justify-start gap-4 sm:gap-8 py-3 border-y border-primary/10">
+                  <div className="text-center sm:text-left">
+                    <p className="text-xs text-muted-foreground">Member since</p>
+                    <p className="text-sm font-medium">{userInfo.joinDate}</p>
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <p className="text-xs text-muted-foreground">Orders</p>
+                    <p className="text-sm font-medium text-primary">{stats.totalOrders}</p>
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <p className="text-xs text-muted-foreground">Favorites</p>
+                    <p className="text-sm font-medium text-primary">{stats.favoriteItems}</p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 sm:gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setEditMode(!editMode)}
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-sm"
+                    size="sm"
+                  >
+                    <Edit className="w-4 h-4" />
+                    <span className="hidden sm:inline">{editMode ? 'Cancel' : 'Edit Profile'}</span>
+                    <span className="sm:hidden">{editMode ? 'Cancel' : 'Edit'}</span>
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleLogout}
+                    className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-sm"
+                    size="sm"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -322,68 +327,68 @@ const Profile = () => {
         </div>
 
         {/* Profile Content */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="favorites">Favorites</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
+          <TabsList className="flex w-full overflow-x-auto scrollbar-hide gap-1 p-1 bg-muted/50 rounded-lg">
+            <TabsTrigger value="overview" className="flex-1 text-xs sm:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="orders" className="flex-1 text-xs sm:text-sm">Orders</TabsTrigger>
+            <TabsTrigger value="favorites" className="flex-1 text-xs sm:text-sm">Favorites</TabsTrigger>
+            <TabsTrigger value="settings" className="flex-1 text-xs sm:text-sm">Settings</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+            <div className="grid gap-4 sm:gap-6">
               {/* Personal Information */}
               <Card className="border-primary/10">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="w-5 h-5 text-primary" />
+                <CardHeader className="pb-2 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     Personal Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Full Name</label>
+                    <label className="text-xs sm:text-sm font-medium mb-1 block">Full Name</label>
                     {editMode ? (
                       <Input
                         value={userInfo.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
-                        className="border-primary/20"
+                        className="border-primary/20 text-sm"
                       />
                     ) : (
-                      <p className="text-muted-foreground">{userInfo.name || 'Not set'}</p>
+                      <p className="text-sm text-muted-foreground">{userInfo.name || 'Not set'}</p>
                     )}
                   </div>
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Email</label>
-                    <p className="text-muted-foreground">{userInfo.email}</p>
+                    <label className="text-xs sm:text-sm font-medium mb-1 block">Email</label>
+                    <p className="text-sm text-muted-foreground break-all">{userInfo.email}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Phone</label>
+                    <label className="text-xs sm:text-sm font-medium mb-1 block">Phone</label>
                     {editMode ? (
                       <Input
                         value={userInfo.phone}
                         onChange={(e) => handleInputChange('phone', e.target.value)}
-                        className="border-primary/20"
+                        className="border-primary/20 text-sm"
                       />
                     ) : (
-                      <p className="text-muted-foreground">{userInfo.phone || 'Not set'}</p>
+                      <p className="text-sm text-muted-foreground">{userInfo.phone || 'Not set'}</p>
                     )}
                   </div>
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Address</label>
+                    <label className="text-xs sm:text-sm font-medium mb-1 block">Address</label>
                     {editMode ? (
                       <Input
                         value={userInfo.address}
                         onChange={(e) => handleInputChange('address', e.target.value)}
-                        className="border-primary/20"
+                        className="border-primary/20 text-sm"
                       />
                     ) : (
-                      <p className="text-muted-foreground">{userInfo.address || 'Not set'}</p>
+                      <p className="text-sm text-muted-foreground">{userInfo.address || 'Not set'}</p>
                     )}
                   </div>
                   {editMode && (
-                    <Button onClick={handleSave} variant="hero" className="w-full" disabled={saving}>
+                    <Button onClick={handleSave} variant="hero" className="w-full" size="sm" disabled={saving}>
                       {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                       Save Changes
                     </Button>
@@ -393,26 +398,26 @@ const Profile = () => {
 
               {/* Account Statistics */}
               <Card className="border-primary/10">
-                <CardHeader>
-                  <CardTitle>Account Statistics</CardTitle>
+                <CardHeader className="pb-2 sm:pb-4">
+                  <CardTitle className="text-base sm:text-lg">Account Statistics</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 bg-primary/5 rounded-lg">
-                      <div className="text-2xl font-bold text-primary">{stats.totalOrders}</div>
-                      <div className="text-sm text-muted-foreground">Total Orders</div>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                    <div className="text-center p-3 sm:p-4 bg-primary/5 rounded-lg">
+                      <div className="text-xl sm:text-2xl font-bold text-primary">{stats.totalOrders}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">Orders</div>
                     </div>
-                    <div className="text-center p-4 bg-success/5 rounded-lg">
-                      <div className="text-2xl font-bold text-success">${stats.totalSpent.toFixed(2)}</div>
-                      <div className="text-sm text-muted-foreground">Total Spent</div>
+                    <div className="text-center p-3 sm:p-4 bg-success/5 rounded-lg">
+                      <div className="text-xl sm:text-2xl font-bold text-success">${stats.totalSpent.toFixed(0)}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">Spent</div>
                     </div>
-                    <div className="text-center p-4 bg-warning/5 rounded-lg">
-                      <div className="text-2xl font-bold text-warning">{stats.favoriteItems}</div>
-                      <div className="text-sm text-muted-foreground">Favorites</div>
+                    <div className="text-center p-3 sm:p-4 bg-warning/5 rounded-lg">
+                      <div className="text-xl sm:text-2xl font-bold text-warning">{stats.favoriteItems}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">Favorites</div>
                     </div>
-                    <div className="text-center p-4 bg-primary/5 rounded-lg">
-                      <div className="text-2xl font-bold text-primary">{stats.avgRating}</div>
-                      <div className="text-sm text-muted-foreground">Avg Rating</div>
+                    <div className="text-center p-3 sm:p-4 bg-primary/5 rounded-lg">
+                      <div className="text-xl sm:text-2xl font-bold text-primary">{stats.avgRating}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">Rating</div>
                     </div>
                   </div>
                 </CardContent>
