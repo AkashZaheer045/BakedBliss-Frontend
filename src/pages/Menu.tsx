@@ -205,41 +205,45 @@ const Menu = () => {
         onProfileClick={() => navigate('/profile')}
       />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6 sm:py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Our Menu</h1>
-          <p className="text-muted-foreground">Discover our freshly baked delights</p>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold text-foreground mb-1 sm:mb-2">Our Menu</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Discover our freshly baked delights</p>
         </div>
 
         {/* Search and Filters */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
           <div className="flex-1 relative">
             <Input
               type="text"
-              placeholder="Search for products..."
+              placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              className="pl-10"
+              className="pl-10 text-sm"
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           </div>
           <Button
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 shrink-0"
             onClick={handleSearch}
           >
             <SlidersHorizontal className="w-4 h-4" />
-            Search
+            <span className="sm:inline">Search</span>
           </Button>
         </div>
 
-        {/* Category Tabs */}
+        {/* Category Tabs - Horizontally scrollable */}
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-8">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="flex w-full overflow-x-auto scrollbar-hide gap-1 p-1 bg-muted/50 rounded-lg justify-start sm:justify-center">
             {categories.map((category) => (
-              <TabsTrigger key={category.id} value={category.id}>
+              <TabsTrigger 
+                key={category.id} 
+                value={category.id}
+                className="shrink-0 text-xs sm:text-sm px-3 py-2"
+              >
                 {category.label}
               </TabsTrigger>
             ))}
@@ -247,14 +251,14 @@ const Menu = () => {
         </Tabs>
 
         {/* Results Info */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">
-              {loading ? "Loading..." : `Showing ${filteredProducts.length} products`}
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm text-muted-foreground">
+              {loading ? "Loading..." : `${filteredProducts.length} products`}
             </span>
             {searchQuery && (
-              <Badge variant="secondary">
-                Search: "{searchQuery}"
+              <Badge variant="secondary" className="text-xs">
+                "{searchQuery}"
               </Badge>
             )}
           </div>
@@ -263,11 +267,11 @@ const Menu = () => {
         {/* Products Grid */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Loading products...</p>
+            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-sm text-muted-foreground">Loading products...</p>
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -282,8 +286,8 @@ const Menu = () => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <h3 className="text-xl font-semibold text-foreground mb-2">No products found</h3>
-            <p className="text-muted-foreground">Try adjusting your search or filters</p>
+            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">No products found</h3>
+            <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
           </div>
         )}
       </main>
