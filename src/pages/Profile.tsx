@@ -22,7 +22,8 @@ import {
   Settings,
   CreditCard,
   Bell,
-  Loader2
+  Loader2,
+  LogOut
 } from "lucide-react";
 import {
   AlertDialog,
@@ -76,7 +77,7 @@ const Profile = () => {
   });
   const [favorites, setFavorites] = useState<any[]>([]);
   const { toast } = useToast();
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const navigate = useNavigate();
 
   // Fetch user data and orders on mount
@@ -207,6 +208,14 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out",
+    });
+  };
+
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
 
@@ -287,14 +296,24 @@ const Profile = () => {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => setEditMode(!editMode)}
-                      className="flex items-center gap-2"
-                    >
-                      <Edit className="w-4 h-4" />
-                      {editMode ? 'Cancel' : 'Edit Profile'}
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setEditMode(!editMode)}
+                        className="flex items-center gap-2"
+                      >
+                        <Edit className="w-4 h-4" />
+                        {editMode ? 'Cancel' : 'Edit Profile'}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={handleLogout}
+                        className="flex items-center gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -11,6 +11,12 @@ import { Auth } from "@/pages/Auth";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Dashboard } from "@/pages/admin/Dashboard";
 import { Products } from "@/pages/admin/Products";
+import { Orders } from "@/pages/admin/Orders";
+import { Customers } from "@/pages/admin/Customers";
+import { Payments } from "@/pages/admin/Payments";
+import { Reviews } from "@/pages/admin/Reviews";
+import { Promotions } from "@/pages/admin/Promotions";
+import { Settings } from "@/pages/admin/Settings";
 import Index from "./pages/Index";
 import Menu from "./pages/Menu";
 import Cart from "./pages/Cart";
@@ -28,7 +34,7 @@ type AppState = 'splash' | 'role-selection' | 'auth' | 'customer-app' | 'admin-a
 const AppContent = () => {
   const [appState, setAppState] = useState<AppState>('splash');
   const [userRole, setUserRole] = useState<'customer' | 'admin' | null>(null);
-  const { logout, isAuthenticated, user } = useAuth();
+  const { logout, isAuthenticated, user, isLoading } = useAuth();
 
   // Check if user is already authenticated on mount
   useEffect(() => {
@@ -41,7 +47,15 @@ const AppContent = () => {
         setUserRole('customer');
       }
     }
-  }, []);
+  }, [isAuthenticated, user]);
+
+  // Handle logout (redirect to role selection when authenticated becomes false)
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && (appState === 'customer-app' || appState === 'admin-app')) {
+      setAppState('role-selection');
+      setUserRole(null);
+    }
+  }, [isAuthenticated, isLoading, appState]);
 
   const handleSplashComplete = () => {
     // Check if already authenticated
@@ -105,12 +119,12 @@ const AppContent = () => {
                 <Route index element={<Dashboard />} />
                 <Route path="admin" element={<Dashboard />} />
                 <Route path="admin/products" element={<Products />} />
-                <Route path="admin/orders" element={<div>Orders Page</div>} />
-                <Route path="admin/customers" element={<div>Customers Page</div>} />
-                <Route path="admin/promotions" element={<div>Promotions Page</div>} />
-                <Route path="admin/reviews" element={<div>Reviews Page</div>} />
-                <Route path="admin/payments" element={<div>Payments Page</div>} />
-                <Route path="admin/settings" element={<div>Settings Page</div>} />
+                <Route path="admin/orders" element={<Orders />} />
+                <Route path="admin/customers" element={<Customers />} />
+                <Route path="admin/promotions" element={<Promotions />} />
+                <Route path="admin/reviews" element={<Reviews />} />
+                <Route path="admin/payments" element={<Payments />} />
+                <Route path="admin/settings" element={<Settings />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>

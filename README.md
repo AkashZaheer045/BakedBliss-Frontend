@@ -1,73 +1,103 @@
-# Welcome to your Lovable project
+# 🧁 Baked Bliss
 
-## Project info
+**A Modern Bakery E-Commerce Platform**
 
-**URL**: https://lovable.dev/projects/7a2826be-62ea-4a56-ac9c-432e448939d9
+Baked Bliss is a complete online ordering solution for artisan bakeries, featuring a beautiful customer-facing storefront and a powerful admin dashboard for business management.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## ✨ Features
 
-**Use Lovable**
+### 🛒 Customer Experience
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7a2826be-62ea-4a56-ac9c-432e448939d9) and start prompting.
+- **Browse Menu** — Explore a delicious catalog of freshly baked goods including pastries, cupcakes, cakes, cookies, breads, and more
+- **Product Details** — View detailed descriptions, pricing, and product images
+- **Shopping Cart** — Add items, adjust quantities, and review orders before checkout
+- **User Accounts** — Create an account, manage profile, and track order history
+- **Favorites** — Save your favorite items for quick reordering
+- **Address Management** — Store multiple delivery addresses for convenience
+- **Contact Form** — Reach out to the bakery with questions or special requests
 
-Changes made via Lovable will be committed automatically to this repo.
+### 👨‍💼 Admin Dashboard
 
-**Use your preferred IDE**
+- **Dashboard Overview** — Real-time insights including total revenue, orders, and customer count
+- **Product Management** — Add, edit, and remove products from the menu
+- **Order Management** — View all orders and update their status (Pending → Confirmed → Preparing → Ready → Delivered)
+- **Customer Management** — View customer list with order history and spending statistics
+- **Payment Overview** — Track revenue, view payment status breakdown, and recent transactions
+- **Customer Feedback** — Review and respond to customer messages and inquiries
+- **Promotions** — Manage discount codes and special offers
+- **Settings** — Configure store information, notification preferences, and delivery options
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 🔐 Authentication & Security
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **Secure Login** — Email and password authentication with JWT tokens
+- **Role-Based Access** — Separate experiences for customers and administrators
+- **OTP Verification** — Optional two-factor authentication via email
+- **Password Recovery** — Forgot password functionality with email reset links
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🎨 User Journey
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### For Customers
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. **Landing Page** — Discover featured products and bakery highlights
+2. **Menu Exploration** — Browse by category and search for specific items
+3. **Add to Cart** — Select items and customize quantities
+4. **Checkout** — Review order, select delivery address, and place order
+5. **Track Order** — View order status and history from profile page
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### For Administrators
 
-**Edit a file directly in GitHub**
+1. **Login** — Access the admin portal with admin credentials
+2. **Monitor Business** — View dashboard with key performance metrics
+3. **Manage Inventory** — Update products, prices, and stock levels
+4. **Process Orders** — Update order statuses as they progress
+5. **Engage Customers** — Review feedback and manage customer relationships
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 📱 Responsive Design
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Baked Bliss is fully responsive and provides an optimal experience across all devices:
 
-## What technologies are used for this project?
+- 📱 **Mobile** — Touch-friendly interface for on-the-go ordering
+- 💻 **Tablet** — Comfortable browsing and cart management
+- 🖥️ **Desktop** — Full-featured experience with expanded layouts
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🚀 Project Highlights
 
-## How can I deploy this project?
+| Feature               | Description                                    |
+| --------------------- | ---------------------------------------------- |
+| Real-time Dashboard   | Live statistics and order updates              |
+| Full CRUD Operations  | Complete product and order management          |
+| Secure Authentication | JWT-based authentication with role management  |
+| Modern UI/UX          | Clean, intuitive design with smooth animations |
+| Email Integration     | Order confirmations and password reset emails  |
+| Search & Filter       | Find products quickly with advanced filtering  |
 
-Simply open [Lovable](https://lovable.dev/projects/7a2826be-62ea-4a56-ac9c-432e448939d9) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## 📊 Demo Data
 
-Yes, you can!
+The application comes pre-seeded with:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- 20+ bakery products across multiple categories
+- Sample customer accounts
+- Demo orders for testing admin features
+- Example contact messages
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+---
+
+## 👤 Author
+
+**M Akash Zaheer**
+
+This project demonstrates full-stack development skills including frontend design, backend API development, database management, and user experience optimization.
+
+---
+
+_Made with 💖 and lots of 🧁_
