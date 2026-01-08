@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, ChefHat } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { Card } from "@/components/ui/card";
 
 interface AuthProps {
   onAuthSuccess: () => void;
@@ -36,24 +36,20 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
 
   const handleSubmit = async (e: React.FormEvent, type: 'login' | 'signup') => {
     e.preventDefault();
-    console.log('=== handleSubmit called ===', { type, formData });
     setIsLoading(true);
 
     try {
-      console.log('Starting', type, 'request...');
       if (type === 'login') {
-        // Login using AuthContext
         await login(formData.email, formData.password);
-
         toast({
-          title: "Login successful!",
-          description: "Welcome back to Baked Bliss",
+          title: "Welcome Back!",
+          description: "Login successful.",
+          className: "bg-orange-50 border-orange-200 text-orange-900"
         });
       } else {
-        // Signup - validate passwords match
         if (formData.password !== formData.confirmPassword) {
           toast({
-            title: "Error",
+            title: "Mismatch",
             description: "Passwords do not match",
             variant: "destructive"
           });
@@ -61,7 +57,6 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
           return;
         }
 
-        // Signup using AuthContext
         await signup({
           fullName: formData.name,
           email: formData.email,
@@ -70,54 +65,42 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
         });
 
         toast({
-          title: "Account created!",
-          description: "Welcome to Baked Bliss",
+          title: "Welcome!",
+          description: "Account created successfully.",
+          className: "bg-orange-50 border-orange-200 text-orange-900"
         });
       }
 
-      // Success - call the onAuthSuccess callback
       setTimeout(() => {
         onAuthSuccess();
       }, 500);
 
     } catch (error: any) {
       console.error('Authentication error:', error);
-      console.log('Error response:', error.response);
-      console.log('Error response data:', error.response?.data);
-
-      // Extract error message from various response formats
-      let errorMessage = 'Authentication failed. Please try again.';
       
+      let errorMessage = 'Authentication failed. Please try again.';
       const responseData = error.response?.data;
       
       if (responseData) {
-        console.log('Response data found:', responseData);
-        
-        // Priority 1: Direct message from backend (matches your JSON)
         if (responseData.message) {
            errorMessage = responseData.message;
         }
-        // Priority 2: Validation errors array
         else if (responseData.errors && Array.isArray(responseData.errors) && responseData.errors.length > 0) {
           errorMessage = responseData.errors[0].message || responseData.errors[0].msg;
         }
-        // Priority 3: Fallback to stringified data if structured error missing
         else if (typeof responseData === 'string') {
             errorMessage = responseData;
         }
       } 
-      // Fallback to error message if no response data
       else if (error.message && error.message !== 'Request failed with status code 412') {
         errorMessage = error.message;
       }
 
-      console.log('Final error message to toast:', errorMessage);
-
       toast({
-        title: "Registration Failed",
+        title: "Action Failed",
         description: errorMessage,
         variant: "destructive",
-        duration: 5000,
+        duration: 4000,
       });
     } finally {
       setIsLoading(false);
@@ -125,56 +108,69 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 flex flex-col items-center justify-center p-4 safe-bottom">
-      <div className="w-full max-w-md space-y-4 sm:space-y-6">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          onClick={onBack}
-          className="self-start text-sm"
-          size="sm"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1.5" />
-          Back
-        </Button>
+    <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden">
+      
+      {/* Background Image with Blur */}
+      <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-white/30 z-10 backdrop-blur-sm" />
+          <img 
+            src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=2626&auto=format&fit=crop" 
+            alt="Bakery Background" 
+            className="w-full h-full object-cover"
+          />
+      </div>
 
-        {/* Logo */}
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Baked Bliss
-          </h1>
-          <p className="text-sm text-muted-foreground">Welcome back to your bakery</p>
-        </div>
+      {/* Main Card */}
+      <Card className="w-full max-w-md relative z-20 bg-white/80 backdrop-blur-xl shadow-2xl border-white/40 animate-fade-in my-8">
+        <div className="p-6 sm:p-8">
+            
+            {/* Header Section */}
+            <div className="text-center mb-8">
+                <Button
+                    variant="ghost"
+                    onClick={onBack}
+                    className="absolute left-4 top-4 text-gray-500 hover:text-gray-900 hover:bg-white/50"
+                    size="icon"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                </Button>
 
-        {/* Auth Tabs */}
-        <Card className="border-primary/10">
-          <Tabs defaultValue="login" className="w-full">
-            <CardHeader className="pb-2 sm:pb-4">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login" className="text-sm">Login</TabsTrigger>
-                <TabsTrigger value="signup" className="text-sm">Sign Up</TabsTrigger>
-              </TabsList>
-            </CardHeader>
-
-            <CardContent className="pt-2">
-              {/* Login Tab */}
-              <TabsContent value="login" className="space-y-4">
-                <div className="text-center mb-4">
-                  <CardTitle>Welcome Back</CardTitle>
-                  <CardDescription>Sign in to your account</CardDescription>
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-white rounded-full flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-sm border border-orange-100">
+                    <ChefHat className="w-8 h-8" />
                 </div>
+                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Baked Bliss</h1>
+                <p className="text-sm text-gray-600 mt-2 font-medium">Your daily dose of fresh pastries</p>
+            </div>
 
-                <form onSubmit={(e) => handleSubmit(e, 'login')} className="space-y-4">
+            {/* Tabs & Form */}
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-8 h-12 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50">
+                <TabsTrigger 
+                    value="login" 
+                    className="h-10 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm transition-all"
+                >
+                    Login
+                </TabsTrigger>
+                <TabsTrigger 
+                    value="signup" 
+                    className="h-10 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm transition-all"
+                >
+                    Sign Up
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="login" className="space-y-6 animate-fade-in focus-visible:outline-none">
+                <form onSubmit={(e) => handleSubmit(e, 'login')} className="space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="relative group">
+                      <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
                       <Input
                         id="login-email"
                         name="email"
                         type="email"
-                        placeholder="Enter your email"
-                        className="pl-9"
+                        placeholder="john@example.com"
+                        className="pl-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
                         value={formData.email}
                         onChange={handleInputChange}
                         required
@@ -183,15 +179,18 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="login-password">Password</Label>
+                        <span className="text-xs text-orange-600 hover:underline cursor-pointer">Forgot?</span>
+                    </div>
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
                       <Input
                         id="login-password"
                         name="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        className="pl-9 pr-9"
+                        placeholder="••••••••"
+                        className="pl-10 pr-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
                         value={formData.password}
                         onChange={handleInputChange}
                         required
@@ -200,7 +199,7 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-gray-400 hover:text-gray-600"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -208,29 +207,23 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg shadow-lg hover:shadow-orange-500/30 transition-all" disabled={isLoading}>
                     {isLoading ? "Signing In..." : "Sign In"}
                   </Button>
                 </form>
               </TabsContent>
 
-              {/* Signup Tab */}
-              <TabsContent value="signup" className="space-y-4">
-                <div className="text-center mb-4">
-                  <CardTitle>Create Account</CardTitle>
-                  <CardDescription>Join our bakery community</CardDescription>
-                </div>
-
+              <TabsContent value="signup" className="space-y-6 animate-fade-in focus-visible:outline-none">
                 <form onSubmit={(e) => handleSubmit(e, 'signup')} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="relative group">
+                      <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
                       <Input
                         id="signup-name"
                         name="name"
-                        placeholder="Enter your full name"
-                        className="pl-9"
+                        placeholder="John Doe"
+                        className="pl-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
                         value={formData.name}
                         onChange={handleInputChange}
                         required
@@ -240,14 +233,14 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
 
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="relative group">
+                      <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
                       <Input
                         id="signup-email"
                         name="email"
                         type="email"
-                        placeholder="Enter your email"
-                        className="pl-9"
+                        placeholder="john@example.com"
+                        className="pl-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
                         value={formData.email}
                         onChange={handleInputChange}
                         required
@@ -257,14 +250,14 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
 
                   <div className="space-y-2">
                     <Label htmlFor="signup-phone">Phone</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="relative group">
+                      <Phone className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
                       <Input
                         id="signup-phone"
                         name="phone"
                         type="tel"
-                        placeholder="Enter your phone number"
-                        className="pl-9"
+                        placeholder="+1 234..."
+                        className="pl-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
                         value={formData.phone}
                         onChange={handleInputChange}
                         required
@@ -274,14 +267,14 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
 
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
                       <Input
                         id="signup-password"
                         name="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Create a password"
-                        className="pl-9 pr-9"
+                        className="pl-10 pr-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
                         value={formData.password}
                         onChange={handleInputChange}
                         required
@@ -290,7 +283,7 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-gray-400 hover:text-gray-600"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -300,23 +293,23 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
 
                   <div className="space-y-2">
                     <Label htmlFor="confirm-password">Confirm Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
                       <Input
                         id="confirm-password"
                         name="confirmPassword"
                         type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm your password"
-                        className="pl-9 pr-9"
+                        placeholder="Confirm password"
+                        className="pl-10 pr-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
                         required
                       />
-                      <Button
+                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-gray-400 hover:text-gray-600"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -324,14 +317,18 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Creating Account..." : "Create Account"}
+                  <Button type="submit" className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg shadow-lg hover:shadow-orange-500/30 transition-all" disabled={isLoading}>
+                    {isLoading ? "Create Account" : "Sign Up"}
                   </Button>
                 </form>
               </TabsContent>
-            </CardContent>
-          </Tabs>
-        </Card>
+            </Tabs>
+        </div>
+      </Card>
+      
+      {/* Footer / Copyright */}
+      <div className="absolute bottom-4 text-center w-full z-20">
+        <p className="text-gray-800/80 text-xs font-medium shadow-sm">© 2024 Baked Bliss. All rights reserved.</p>
       </div>
     </div>
   );
