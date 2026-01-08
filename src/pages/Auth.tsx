@@ -11,9 +11,10 @@ import { Card } from "@/components/ui/card";
 interface AuthProps {
   onAuthSuccess: () => void;
   onBack: () => void;
+  role?: 'customer' | 'admin' | null;
 }
 
-export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
+export const Auth = ({ onAuthSuccess, onBack, role }: AuthProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -144,19 +145,21 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
 
             {/* Tabs & Form */}
             <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-8 h-12 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50">
+              <TabsList className={`grid w-full mb-8 h-12 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50 ${role === 'admin' ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 <TabsTrigger 
                     value="login" 
                     className="h-10 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm transition-all"
                 >
                     Login
                 </TabsTrigger>
-                <TabsTrigger 
-                    value="signup" 
-                    className="h-10 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm transition-all"
-                >
-                    Sign Up
-                </TabsTrigger>
+                {role !== 'admin' && (
+                  <TabsTrigger 
+                      value="signup" 
+                      className="h-10 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm transition-all"
+                  >
+                      Sign Up
+                  </TabsTrigger>
+                )}
               </TabsList>
 
               <TabsContent value="login" className="space-y-6 animate-fade-in focus-visible:outline-none">
@@ -213,115 +216,118 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
                 </form>
               </TabsContent>
 
-              <TabsContent value="signup" className="space-y-6 animate-fade-in focus-visible:outline-none">
-                <form onSubmit={(e) => handleSubmit(e, 'signup')} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
-                    <div className="relative group">
-                      <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
-                      <Input
-                        id="signup-name"
-                        name="name"
-                        placeholder="John Doe"
-                        className="pl-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required
-                      />
+              {role !== 'admin' && (
+                <TabsContent value="signup" className="space-y-6 animate-fade-in focus-visible:outline-none">
+                  <form onSubmit={(e) => handleSubmit(e, 'signup')} className="space-y-4">
+                    {/* ... form content ... */}
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-name">Full Name</Label>
+                      <div className="relative group">
+                        <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
+                        <Input
+                          id="signup-name"
+                          name="name"
+                          placeholder="John Doe"
+                          className="pl-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <div className="relative group">
-                      <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
-                      <Input
-                        id="signup-email"
-                        name="email"
-                        type="email"
-                        placeholder="john@example.com"
-                        className="pl-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                      />
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email">Email</Label>
+                      <div className="relative group">
+                        <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
+                        <Input
+                          id="signup-email"
+                          name="email"
+                          type="email"
+                          placeholder="john@example.com"
+                          className="pl-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-phone">Phone</Label>
-                    <div className="relative group">
-                      <Phone className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
-                      <Input
-                        id="signup-phone"
-                        name="phone"
-                        type="tel"
-                        placeholder="+1 234..."
-                        className="pl-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        required
-                      />
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-phone">Phone</Label>
+                      <div className="relative group">
+                        <Phone className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
+                        <Input
+                          id="signup-phone"
+                          name="phone"
+                          type="tel"
+                          placeholder="+1 234..."
+                          className="pl-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <div className="relative group">
-                      <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
-                      <Input
-                        id="signup-password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Create a password"
-                        className="pl-10 pr-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-gray-400 hover:text-gray-600"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password">Password</Label>
+                      <div className="relative group">
+                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
+                        <Input
+                          id="signup-password"
+                          name="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Create a password"
+                          className="pl-10 pr-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-gray-400 hover:text-gray-600"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
-                    <div className="relative group">
-                      <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
-                      <Input
-                        id="confirm-password"
-                        name="confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm password"
-                        className="pl-10 pr-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        required
-                      />
-                       <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-gray-400 hover:text-gray-600"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">Confirm Password</Label>
+                      <div className="relative group">
+                        <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 group-hover:text-orange-500 transition-colors" />
+                        <Input
+                          id="confirm-password"
+                          name="confirmPassword"
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="Confirm password"
+                          className="pl-10 pr-10 h-10 border-gray-200 focus:border-orange-500 focus:ring-orange-500/20"
+                          value={formData.confirmPassword}
+                          onChange={handleInputChange}
+                          required
+                        />
+                         <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent text-gray-400 hover:text-gray-600"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
-                  <Button type="submit" className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg shadow-lg hover:shadow-orange-500/30 transition-all" disabled={isLoading}>
-                    {isLoading ? "Create Account" : "Sign Up"}
-                  </Button>
-                </form>
-              </TabsContent>
+                    <Button type="submit" className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg shadow-lg hover:shadow-orange-500/30 transition-all" disabled={isLoading}>
+                      {isLoading ? "Create Account" : "Sign Up"}
+                    </Button>
+                  </form>
+                </TabsContent>
+              )}
             </Tabs>
         </div>
       </Card>

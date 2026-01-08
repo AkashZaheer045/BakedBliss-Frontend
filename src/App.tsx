@@ -104,7 +104,7 @@ const AppContent = () => {
   }
 
   if (appState === 'auth') {
-    return <Auth onAuthSuccess={handleAuthSuccess} onBack={handleBackToRoleSelection} />;
+    return <Auth onAuthSuccess={handleAuthSuccess} onBack={handleBackToRoleSelection} role={userRole} />;
   }
 
   return (

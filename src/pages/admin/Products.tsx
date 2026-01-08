@@ -66,7 +66,8 @@ export const Products = () => {
     description: "",
     price: "",
     category: "",
-    stock: ""
+    stock: "",
+    thumbnail: ""
   });
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
@@ -97,7 +98,7 @@ export const Products = () => {
           price: parseFloat(product.price) || 0,
           stock: product.stock || product.quantity || 0,
           status: getStockStatus(product.stock || product.quantity || 0),
-          image: categoryEmoji[product.category?.toLowerCase()] || categoryEmoji.default,
+          image: product.thumbnail || categoryEmoji[product.category?.toLowerCase()] || categoryEmoji.default,
           description: product.description || ""
         }));
         setProducts(mappedProducts);
@@ -138,6 +139,7 @@ export const Products = () => {
         description: formData.description,
         price: parseFloat(formData.price),
         category: formData.category,
+        thumbnail: formData.thumbnail,
         stock: parseInt(formData.stock)
       });
 
@@ -147,7 +149,7 @@ export const Products = () => {
           description: "Product created successfully"
         });
         setIsAddDialogOpen(false);
-        setFormData({ title: "", description: "", price: "", category: "", stock: "" });
+        setFormData({ title: "", description: "", price: "", category: "", stock: "", thumbnail: "" });
         fetchProducts();
       }
     } catch (error: any) {
@@ -172,7 +174,8 @@ export const Products = () => {
         description: formData.description,
         price: parseFloat(formData.price),
         category: formData.category,
-        stock: parseInt(formData.stock)
+        stock: parseInt(formData.stock),
+        thumbnail: formData.thumbnail
       });
 
       if (response.status === 'success' || response.success) {
@@ -229,7 +232,8 @@ export const Products = () => {
       description: product.description,
       price: product.price.toString(),
       category: product.category,
-      stock: product.stock.toString()
+      stock: product.stock.toString(),
+      thumbnail: product.image.startsWith('http') ? product.image : ""
     });
     setIsEditDialogOpen(true);
   };
@@ -298,7 +302,13 @@ export const Products = () => {
                   <TableRow key={product.id}>
                     <TableCell>
                       <div className="flex items-center space-x-3">
-                        <span className="text-2xl">{product.image}</span>
+                        <div className="h-12 w-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
+                          {product.image.startsWith('http') ? (
+                              <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                          ) : (
+                              <span className="text-2xl">{product.image}</span>
+                          )}
+                        </div>
                         <div>
                           <p className="font-medium">{product.name}</p>
                           <p className="text-sm text-muted-foreground">ID: {product.id}</p>
@@ -393,6 +403,15 @@ export const Products = () => {
               </div>
             </div>
             <div className="grid gap-2">
+              <Label htmlFor="thumbnail">Image URL</Label>
+              <Input
+                id="thumbnail"
+                value={formData.thumbnail}
+                onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            <div className="grid gap-2">
               <Label htmlFor="category">Category</Label>
               <Input
                 id="category"
@@ -460,6 +479,14 @@ export const Products = () => {
                   onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                 />
               </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-thumbnail">Image URL</Label>
+              <Input
+                id="edit-thumbnail"
+                value={formData.thumbnail}
+                onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="edit-category">Category</Label>

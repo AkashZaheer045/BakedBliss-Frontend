@@ -3,6 +3,7 @@ import { Overview } from "@/components/admin/Overview";
 import { RecentOrders } from "@/components/admin/RecentOrders";
 import { QuickStats } from "@/components/admin/QuickStats";
 import { TopProducts } from "@/components/admin/TopProducts";
+import { RecentActivity } from "@/components/admin/RecentActivity";
 
 export const Dashboard = () => {
   return (
@@ -45,18 +46,33 @@ export const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Top Products */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Top Selling Products</CardTitle>
-          <CardDescription>
-            Your best performing products this month
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TopProducts />
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        {/* Top Products */}
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Top Selling Products</CardTitle>
+            <CardDescription>
+              Your best performing products this month
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TopProducts />
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>
+              Real-time user actions and system logs
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RecentActivity />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

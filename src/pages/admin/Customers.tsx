@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -20,6 +21,7 @@ interface Customer {
   name: string;
   email: string;
   phone: string;
+  isActive: boolean;
   joinedAt: string;
   orderCount: number;
   totalSpent: string;
@@ -47,6 +49,22 @@ export const Customers = () => {
       toast({ title: "Error", description: "Failed to load customers", variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleStatus = async (customer: Customer) => {
+    try {
+      const newStatus = !customer.isActive;
+      await adminService.updateCustomerStatus(customer.userId, newStatus);
+      
+      setCustomers(customers.map(c => 
+        c.userId === customer.userId ? { ...c, isActive: newStatus } : c
+      ));
+      
+      toast({ title: "Success", description: `User ${newStatus ? 'activated' : 'deactivated'} successfully` });
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      toast({ title: "Error", description: "Failed to update status", variant: "destructive" });
     }
   };
 
@@ -127,7 +145,9 @@ export const Customers = () => {
                   <TableHead>Contact</TableHead>
                   <TableHead>Orders</TableHead>
                   <TableHead>Total Spent</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Joined</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -169,8 +189,23 @@ export const Customers = () => {
                     <TableCell className="font-medium text-green-600">
                       ${customer.totalSpent}
                     </TableCell>
+                    <TableCell>
+                      <Badge variant={customer.isActive ? "default" : "destructive"} className={customer.isActive ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-red-100 text-red-700 hover:bg-red-100"}>
+                        {customer.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(customer.joinedAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                       <Button 
+                           variant="ghost"
+                           size="sm"
+                           className={customer.isActive ? "text-red-600 hover:text-red-700 hover:bg-red-50" : "text-green-600 hover:text-green-700 hover:bg-green-50"}
+                           onClick={() => handleToggleStatus(customer)}
+                       >
+                           {customer.isActive ? "Deactivate" : "Activate"}
+                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -82,6 +82,16 @@ const adminService = {
         return response.data;
     },
 
+    updateCustomerStatus: async (userId: string, isActive: boolean) => {
+        const response = await apiClient.patch(`/admin/customers/${userId}/status`, { isActive });
+        return response.data;
+    },
+
+    getActivityLogs: async (filters?: { page?: number; limit?: number }) => {
+        const response = await apiClient.get('/admin/customers/logs', { params: filters });
+        return response.data;
+    },
+
     // ==================== PAYMENTS ====================
     getPaymentSummary: async () => {
         const response = await apiClient.get('/admin/payments/summary');
