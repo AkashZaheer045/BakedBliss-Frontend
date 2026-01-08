@@ -17,6 +17,7 @@ import { Payments } from "@/pages/admin/Payments";
 import { Reviews } from "@/pages/admin/Reviews";
 import { Promotions } from "@/pages/admin/Promotions";
 import { Settings } from "@/pages/admin/Settings";
+import { ActivityLogs } from "@/pages/admin/ActivityLogs";
 import Index from "./pages/Index";
 import Menu from "./pages/Menu";
 import Cart from "./pages/Cart";
@@ -121,6 +122,7 @@ const AppContent = () => {
             <Route path="admin/reviews" element={<Reviews />} />
             <Route path="admin/payments" element={<Payments />} />
             <Route path="admin/settings" element={<Settings />} />
+            <Route path="admin/logs" element={<ActivityLogs />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

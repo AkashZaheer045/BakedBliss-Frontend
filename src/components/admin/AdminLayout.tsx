@@ -22,7 +22,8 @@ import {
   Bell,
   LogOut,
   Menu,
-  X
+  X,
+  FileText
 } from "lucide-react";
 
 const navigation = [
@@ -62,6 +63,11 @@ const navigation = [
     name: "Payments",
     href: "/admin/payments",
     icon: CreditCard,
+  },
+  {
+    name: "Activity Logs",
+    href: "/admin/logs",
+    icon: FileText,
   },
   {
     name: "Settings",
