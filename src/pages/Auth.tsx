@@ -15,6 +15,7 @@ interface AuthProps {
 
 export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -304,13 +305,22 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
                       <Input
                         id="confirm-password"
                         name="confirmPassword"
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         placeholder="Confirm your password"
-                        className="pl-9"
+                        className="pl-9 pr-9"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
                         required
                       />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
                     </div>
                   </div>
 
