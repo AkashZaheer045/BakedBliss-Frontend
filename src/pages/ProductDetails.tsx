@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Heart, ShoppingBag, ArrowLeft, Minus, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { productService, cartService, userService } from "@/services";
+import { useCart } from "@/contexts/CartContext";
+import { productService, userService } from "@/services";
 import { Product } from "@/services/productService";
 
 const ProductDetails = () => {
@@ -16,11 +17,12 @@ const ProductDetails = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   
+  const { addToCart, itemCount: cartItemCount } = useCart();
+  
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [cartItemCount, setCartItemCount] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -59,36 +61,8 @@ const ProductDetails = () => {
   }, [id, user]);
 
   const handleAddToCart = async () => {
-    if (!user) {
-      toast({
-        title: "Login Required",
-        description: "Please login to add items to cart",
-        variant: "destructive"
-      });
-      navigate("/auth"); // Or open auth modal
-      return;
-    }
-
     if (!product) return;
-
-    try {
-      await cartService.addToCart({
-        productId: product.id,
-        quantity: quantity
-      });
-      
-      setCartItemCount(prev => prev + quantity);
-      toast({
-        title: "Added to Cart",
-        description: `${quantity} x ${product.title} added to your cart`
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to add to cart",
-        variant: "destructive"
-      });
-    }
+    await addToCart(product.id, quantity);
   };
 
   const handleToggleFavorite = async () => {
@@ -251,10 +225,10 @@ const ProductDetails = () => {
                         </Button>
                         <Button 
                             variant="outline" 
-                            className="h-12 w-12 p-0"
+                            className={`h-12 w-12 p-0 transition-colors ${isFavorite ? 'bg-red-50 hover:bg-red-100 border-red-200' : 'bg-secondary/50 hover:bg-secondary border-transparent'}`}
                             onClick={handleToggleFavorite}
                         >
-                            <Heart className={`w-6 h-6 ${isFavorite ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
+                            <Heart className={`w-6 h-6 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-foreground'}`} />
                         </Button>
                     </div>
                 </div>

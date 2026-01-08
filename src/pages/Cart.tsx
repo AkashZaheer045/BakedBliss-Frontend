@@ -9,24 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { cartService, orderService } from "@/services";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-interface CartItem {
-  id: string;
-  product_id: number;
-  name: string;
-  image: string;
-  price: number;
-  quantity: number;
-  description: string;
-}
-
 const Cart = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { cartItems, updateQuantity: contextUpdateQuantity, removeFromCart: contextRemoveItem, clearCart, loading } = useCart();
   const [updating, setUpdating] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -35,106 +25,26 @@ const Cart = () => {
   const [address, setAddress] = useState({ street: "", city: "", state: "", zipCode: "", country: "" });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Fetch cart on mount
-  useEffect(() => {
-    const fetchCart = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const response = await cartService.getCart();
-        
-        if ((response.status === 'success' || response.success) && response.cart) {
-          // Map backend cart items to frontend format
-          const mappedItems: CartItem[] = (response.cart.items || []).map((item: any) => ({
-            id: item.productId?.toString(),
-            product_id: item.productId,
-            name: item.title || item.name || "Product",
-            image: item.thumbnail || "/placeholder.svg",
-            price: parseFloat(item.price) || 0,
-            quantity: item.quantity || 1,
-            description: item.description || ""
-          }));
-          setCartItems(mappedItems);
-        }
-      } catch (error: any) {
-        console.error("Failed to fetch cart:", error);
-        // Don't show error if cart is just empty
-        if (error.response?.status !== 404) {
-          toast({
-            title: "Error",
-            description: "Failed to load cart. Please try again.",
-            variant: "destructive"
-          });
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCart();
-  }, [user]);
+  // Cart is managed globally via Context
 
   const updateQuantity = async (id: string, newQuantity: number) => {
     if (!user) return;
-
-    if (newQuantity === 0) {
-      removeItem(id);
-      return;
-    }
-
     const item = cartItems.find(i => i.id === id);
     if (!item) return;
 
     setUpdating(id);
-    try {
-      await cartService.updateCartItem({
-        productId: item.product_id,
-        quantity: newQuantity
-      });
-
-      setCartItems(items =>
-        items.map(i =>
-          i.id === id ? { ...i, quantity: newQuantity } : i
-        )
-      );
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to update quantity",
-        variant: "destructive"
-      });
-    } finally {
-      setUpdating(null);
-    }
+    await contextUpdateQuantity(item.product_id, newQuantity);
+    setUpdating(null);
   };
 
   const removeItem = async (id: string) => {
     if (!user) return;
-
     const item = cartItems.find(i => i.id === id);
     if (!item) return;
 
     setUpdating(id);
-    try {
-      await cartService.removeFromCart(item.product_id);
-      setCartItems(items => items.filter(i => i.id !== id));
-      toast({
-        title: "Item removed",
-        description: "Item has been removed from your cart.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to remove item",
-        variant: "destructive"
-      });
-    } finally {
-      setUpdating(null);
-    }
+    await contextRemoveItem(item.product_id);
+    setUpdating(null);
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -187,9 +97,9 @@ const Cart = () => {
       
       if (response.status === 'success' || response.success) {
         // Clear cart after successful order
-        await cartService.clearCart();
+        // Clear cart after successful order
+        await clearCart();
         setIsCheckoutOpen(false);
-        setCartItems([]);
         
         toast({
           title: "Order Placed!",
@@ -225,7 +135,7 @@ const Cart = () => {
             <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">Your cart is empty</h3>
             <p className="text-muted-foreground mb-6">Add some delicious items to get started!</p>
-            <Button variant="hero" size="lg">
+            <Button variant="hero" size="lg" onClick={() => navigate('/menu')}>
               Continue Shopping
             </Button>
           </div>

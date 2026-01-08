@@ -7,18 +7,15 @@ import { FeaturedSection } from "@/components/FeaturedSection";
 import { SpecialOffersSection } from "@/components/SpecialOffersSection";
 import { Footer } from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 const Index = () => {
-  const [cartItemCount, setCartItemCount] = useState(3);
+  const { itemCount, addToCart } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleAddToCart = (productId: string) => {
-    setCartItemCount(prev => prev + 1);
-    toast({
-      title: "Added to cart!",
-      description: "Item has been added to your cart successfully.",
-    });
+  const handleAddToCart = async (productId: string) => {
+    await addToCart(parseInt(productId));
   };
 
   const handleSearch = (query: string) => {
@@ -51,7 +48,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header 
-        cartItemCount={cartItemCount}
+        cartItemCount={itemCount}
         onSearch={handleSearch}
         onCartClick={() => {}}
         onProfileClick={() => navigate('/profile')}

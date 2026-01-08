@@ -10,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { productService, cartService, userService } from "@/services";
+import { useCart } from "@/contexts/CartContext";
+import { productService, userService } from "@/services";
 
 const categories = [
   { id: "all", label: "All Items" },
@@ -31,7 +32,7 @@ const Menu = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<any[]>([]);
-  const [cartItemCount, setCartItemCount] = useState(0);
+  const { addToCart, itemCount: cartItemCount } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -142,16 +143,7 @@ const Menu = () => {
     }
 
     try {
-      await cartService.addToCart({
-        productId: parseInt(productId),
-        quantity: 1
-      });
-
-      setCartItemCount(prev => prev + 1);
-      toast({
-        title: "Added to cart!",
-        description: "Item has been added to your cart successfully.",
-      });
+      await addToCart(parseInt(productId), 1);
     } catch (error: any) {
       toast({
         title: "Error",
