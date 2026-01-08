@@ -35,9 +35,11 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
 
   const handleSubmit = async (e: React.FormEvent, type: 'login' | 'signup') => {
     e.preventDefault();
+    console.log('=== handleSubmit called ===', { type, formData });
     setIsLoading(true);
 
     try {
+      console.log('Starting', type, 'request...');
       if (type === 'login') {
         // Login using AuthContext
         await login(formData.email, formData.password);
@@ -79,15 +81,42 @@ export const Auth = ({ onAuthSuccess, onBack }: AuthProps) => {
 
     } catch (error: any) {
       console.error('Authentication error:', error);
+      console.log('Error response:', error.response);
+      console.log('Error response data:', error.response?.data);
 
-      const errorMessage = error.response?.data?.message ||
-        error.message ||
-        'Authentication failed. Please try again.';
+      // Extract error message from various response formats
+      let errorMessage = 'Authentication failed. Please try again.';
+      
+      const responseData = error.response?.data;
+      
+      if (responseData) {
+        console.log('Response data found:', responseData);
+        
+        // Priority 1: Direct message from backend (matches your JSON)
+        if (responseData.message) {
+           errorMessage = responseData.message;
+        }
+        // Priority 2: Validation errors array
+        else if (responseData.errors && Array.isArray(responseData.errors) && responseData.errors.length > 0) {
+          errorMessage = responseData.errors[0].message || responseData.errors[0].msg;
+        }
+        // Priority 3: Fallback to stringified data if structured error missing
+        else if (typeof responseData === 'string') {
+            errorMessage = responseData;
+        }
+      } 
+      // Fallback to error message if no response data
+      else if (error.message && error.message !== 'Request failed with status code 412') {
+        errorMessage = error.message;
+      }
+
+      console.log('Final error message to toast:', errorMessage);
 
       toast({
-        title: "Error",
+        title: "Registration Failed",
         description: errorMessage,
-        variant: "destructive"
+        variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setIsLoading(false);

@@ -108,50 +108,50 @@ const AppContent = () => {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          {appState === 'admin-app' ? (
-            <Routes>
-              <Route path="/" element={<AdminLayout onLogout={handleLogout} />}>
-                <Route index element={<Dashboard />} />
-                <Route path="admin" element={<Dashboard />} />
-                <Route path="admin/products" element={<Products />} />
-                <Route path="admin/orders" element={<Orders />} />
-                <Route path="admin/customers" element={<Customers />} />
-                <Route path="admin/promotions" element={<Promotions />} />
-                <Route path="admin/reviews" element={<Reviews />} />
-                <Route path="admin/payments" element={<Payments />} />
-                <Route path="admin/settings" element={<Settings />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
-          ) : (
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/menu" element={<Menu />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/product/:id" element={<ProductDetails />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          )}
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <BrowserRouter>
+      {appState === 'admin-app' ? (
+        <Routes>
+          <Route path="/" element={<AdminLayout onLogout={handleLogout} />}>
+            <Route index element={<Dashboard />} />
+            <Route path="admin" element={<Dashboard />} />
+            <Route path="admin/products" element={<Products />} />
+            <Route path="admin/orders" element={<Orders />} />
+            <Route path="admin/customers" element={<Customers />} />
+            <Route path="admin/promotions" element={<Promotions />} />
+            <Route path="admin/reviews" element={<Reviews />} />
+            <Route path="admin/payments" element={<Payments />} />
+            <Route path="admin/settings" element={<Settings />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      ) : (
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      )}
+    </BrowserRouter>
   );
 };
 
 // Root App component with providers
 const App = () => {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <AppContent />
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 

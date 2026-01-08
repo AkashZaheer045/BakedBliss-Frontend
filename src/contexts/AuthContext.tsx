@@ -115,10 +115,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     localStorage.setItem('refreshToken', response.data.refreshToken);
                 }
             } else {
-                throw new Error(response.message || 'Signup failed');
+                // If response has error status, throw with the message
+                const error: any = new Error(response.message || 'Signup failed');
+                error.response = { data: response };
+                throw error;
             }
         } catch (error: any) {
             console.error('Signup error:', error);
+            // Re-throw with full error structure preserved
             throw error;
         }
     };
