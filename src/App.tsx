@@ -49,6 +49,11 @@ const AppContent = () => {
   // Check if user is already authenticated on mount
   useEffect(() => {
     if (isAuthenticated && user) {
+      // Reset URL to root when restoring session to prevent stale routes
+      if (window.location.pathname !== '/') {
+        window.history.replaceState(null, '', '/');
+      }
+      
       if (user.role === 'admin') {
         setAppState('admin-app');
         setUserRole('admin');
@@ -70,6 +75,11 @@ const AppContent = () => {
   const handleSplashComplete = () => {
     // Check if already authenticated
     if (isAuthenticated && user) {
+      // Reset URL to root to prevent stale routes
+      if (window.location.pathname !== '/') {
+        window.history.replaceState(null, '', '/');
+      }
+      
       if (user.role === 'admin') {
         setAppState('admin-app');
         setUserRole('admin');
@@ -88,6 +98,12 @@ const AppContent = () => {
   };
 
   const handleAuthSuccess = () => {
+    // Reset browser URL to root before switching app states
+    // This prevents 404 errors from stale routes (e.g., /cart in admin mode)
+    if (window.location.pathname !== '/') {
+      window.history.replaceState(null, '', '/');
+    }
+    
     if (userRole === 'admin') {
       setAppState('admin-app');
     } else {
@@ -102,12 +118,14 @@ const AppContent = () => {
     // Clear auth state (this also clears localStorage)
     logout();
     
+    // Reset browser URL to root to prevent stale routes
+    if (window.location.pathname !== '/') {
+      window.history.replaceState(null, '', '/');
+    }
+    
     // Reset app state
     setUserRole(null);
     setAppState('role-selection');
-    
-    // Force reload to clean navigation state if needed (optional but ensures clean slate)
-    // window.location.href = '/';
   };
 
   const handleBackToRoleSelection = () => {

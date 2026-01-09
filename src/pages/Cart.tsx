@@ -25,6 +25,19 @@ const Cart = () => {
   const [address, setAddress] = useState({ street: "", city: "", state: "", zipCode: "", country: "" });
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Input validation handlers
+  const handleStateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow alphabets and spaces
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+    setAddress({ ...address, state: value });
+  };
+
+  const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow numbers
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    setAddress({ ...address, zipCode: value });
+  };
+
   // Cart is managed globally via Context
 
   const updateQuantity = async (id: string, newQuantity: number) => {
@@ -271,11 +284,25 @@ const Cart = () => {
                         </div>
                         <div className="space-y-2">
                              <Label>State</Label>
-                             <Input value={address.state} onChange={(e) => setAddress({...address, state: e.target.value})} placeholder="NY" />
+                             <Input 
+                               value={address.state} 
+                               onChange={handleStateChange} 
+                               placeholder="NY"
+                               pattern="[A-Za-z\s]+"
+                               title="State must contain only letters"
+                             />
                         </div>
                         <div className="space-y-2">
                              <Label>Zip Code</Label>
-                             <Input value={address.zipCode} onChange={(e) => setAddress({...address, zipCode: e.target.value})} placeholder="10001" />
+                             <Input 
+                               value={address.zipCode} 
+                               onChange={handleZipCodeChange} 
+                               placeholder="10001"
+                               pattern="[0-9]+"
+                               inputMode="numeric"
+                               maxLength={10}
+                               title="Zip code must contain only numbers"
+                             />
                         </div>
                     </div>
                 <div className="space-y-2">
