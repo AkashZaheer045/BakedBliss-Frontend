@@ -92,10 +92,19 @@ const authService = {
         return { token, user };
     },
 
-    // Clear auth data
+    // Clear auth data - comprehensive cleanup to prevent session conflicts
     logout: () => {
+        // Clear all auth-related data
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
+        localStorage.removeItem('refreshToken');
+        
+        // Clear any cached cart or session data
+        localStorage.removeItem('cart');
+        localStorage.removeItem('selectedAddress');
+        
+        // Clear session storage as well
+        sessionStorage.clear();
     },
 
     // Check if user is authenticated

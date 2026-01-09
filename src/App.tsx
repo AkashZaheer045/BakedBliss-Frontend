@@ -28,7 +28,15 @@ import Profile from "./pages/Profile";
 import ProductDetails from "./pages/ProductDetails";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+// Create queryClient outside component but with a function to clear it
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 type AppState = 'splash' | 'role-selection' | 'auth' | 'customer-app' | 'admin-app';
 
@@ -88,9 +96,18 @@ const AppContent = () => {
   };
 
   const handleLogout = () => {
-    logout(); // This clears tokens from localStorage
+    // Clear all React Query cached data to prevent stale data from previous session
+    queryClient.clear();
+    
+    // Clear auth state (this also clears localStorage)
+    logout();
+    
+    // Reset app state
     setUserRole(null);
     setAppState('role-selection');
+    
+    // Force reload to clean navigation state if needed (optional but ensures clean slate)
+    // window.location.href = '/';
   };
 
   const handleBackToRoleSelection = () => {

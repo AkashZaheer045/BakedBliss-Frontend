@@ -34,9 +34,13 @@ apiClient.interceptors.response.use(
         const isAuthEndpoint = error.config?.url?.includes('/auth/');
         
         if (error.response?.status === 401 && !isAuthEndpoint) {
-            // Token expired or invalid - only redirect for protected routes
+            // Token expired or invalid - clear all auth data
             localStorage.removeItem('authToken');
             localStorage.removeItem('user');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('cart');
+            localStorage.removeItem('selectedAddress');
+            sessionStorage.clear();
             window.location.href = '/';
         }
         return Promise.reject(error);
