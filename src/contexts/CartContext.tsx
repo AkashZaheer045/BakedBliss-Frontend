@@ -73,8 +73,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
     try {
         await cartService.addToCart({ productId, quantity });
+        toast({ 
+          title: "Added to cart!", 
+          description: "Item added successfully.",
+          className: "bg-green-50 border-green-200 text-green-900"
+        });
         await fetchCart();
-        toast({ title: "Added to cart", description: "Item added successfully." });
     } catch (error: any) {
         console.error("Add to cart error", error);
         toast({ title: "Error", description: error.response?.data?.message || "Failed to add item.", variant: "destructive" });
