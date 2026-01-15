@@ -267,11 +267,27 @@ const Cart = () => {
       </main>
 
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-                <DialogTitle>Confirm Delivery Address</DialogTitle>
-                <DialogDescription>Please provide your delivery details.</DialogDescription>
+                <DialogTitle>Confirm Your Order</DialogTitle>
+                <DialogDescription>Review your order and provide delivery details.</DialogDescription>
             </DialogHeader>
+            
+            {/* Order Summary Section */}
+            <div className="border rounded-lg p-3 max-h-40 overflow-y-auto bg-muted/30">
+              <h4 className="font-medium text-sm mb-2">Order Summary</h4>
+              {cartItems.map(item => (
+                <div key={item.id} className="flex justify-between text-sm py-1 border-b border-muted last:border-0">
+                  <span className="truncate mr-2">{item.name} x{item.quantity}</span>
+                  <span className="shrink-0 font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+              ))}
+              <div className="border-t mt-2 pt-2 font-semibold flex justify-between text-sm">
+                <span>Total</span>
+                <span className="text-primary">${total.toFixed(2)}</span>
+              </div>
+            </div>
+
             <div className="space-y-4 py-4">
                 <div className="space-y-2">
                     <Label>Street Address</Label>

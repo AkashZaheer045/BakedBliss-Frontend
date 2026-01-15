@@ -19,7 +19,10 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
   const navigate = useNavigate();
 
   const handleSearch = () => {
-    onSearch?.(searchQuery);
+    if (searchQuery.trim()) {
+      navigate(`/menu?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
   };
 
   const handleNavigation = (path: string) => {
@@ -164,7 +167,7 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
               variant="ghost" 
               size="icon" 
               className="relative hidden sm:flex"
-              onClick={() => navigate("/profile")}
+              onClick={() => navigate("/profile?tab=favorites")}
             >
               <Heart className="w-5 h-5" />
             </Button>

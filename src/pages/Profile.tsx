@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -79,6 +79,8 @@ const Profile = () => {
   const { toast } = useToast();
   const { user, updateUser, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'overview';
 
   // Fetch user data and orders on mount
   useEffect(() => {
@@ -327,7 +329,7 @@ const Profile = () => {
         </div>
 
         {/* Profile Content */}
-        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
+        <Tabs defaultValue={initialTab} className="space-y-4 sm:space-y-6">
           <TabsList className="flex w-full overflow-x-auto scrollbar-hide gap-1 p-1 bg-muted/50 rounded-lg">
             <TabsTrigger value="overview" className="flex-1 text-xs sm:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="orders" className="flex-1 text-xs sm:text-sm">Orders</TabsTrigger>
@@ -388,7 +390,7 @@ const Profile = () => {
                     )}
                   </div>
                   {editMode && (
-                    <Button onClick={handleSave} variant="hero" className="w-full" size="sm" disabled={saving}>
+                    <Button onClick={handleSave} variant="hero" className="w-auto" size="sm" disabled={saving}>
                       {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                       Save Changes
                     </Button>
@@ -440,27 +442,42 @@ const Profile = () => {
                 ) : (
                   <div className="space-y-4">
                     {orders.map((order) => (
-                      <div key={order.id} className="border border-primary/10 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-3">
-                            <span className="font-medium">{order.order_id}</span>
-                            <Badge variant="secondary">{order.status}</Badge>
+                      <div key={order.id} className="border border-primary/10 rounded-lg p-3 sm:p-4">
+                        {/* Header Row - Responsive */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-medium text-sm sm:text-base break-all">{order.order_id}</span>
+                            <Badge variant="secondary" className="text-xs">{order.status}</Badge>
                           </div>
-                          <span className="font-bold text-primary">${order.total.toFixed(2)}</span>
+                          <span className="font-bold text-primary text-sm sm:text-base">${order.total.toFixed(2)}</span>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">{order.date}</p>
-                        <p className="text-sm mb-3">{order.items.join(', ') || 'No items'}</p>
-                        {order.status === 'Pending' && (
+                        
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-2">{order.date}</p>
+                        <p className="text-xs sm:text-sm mb-3 line-clamp-2">{order.items.join(', ') || 'No items'}</p>
+                        
+                        {/* Action Buttons - Responsive */}
+                        <div className="flex flex-wrap gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-xs sm:text-sm"
+                            onClick={() => navigate(`/order/${order.id}`)}
+                          >
+                            View Summary
+                          </Button>
+                          {order.status === 'Pending' && (
                             <Button 
                                 variant="destructive" 
-                                size="sm" 
+                                size="sm"
+                                className="text-xs sm:text-sm"
                                 onClick={() => setOrderToCancel(order.order_id)}
                                 disabled={cancellingId === order.order_id}
                             >
                                 {cancellingId === order.order_id && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                 Cancel Order
                             </Button>
-                        )}
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
