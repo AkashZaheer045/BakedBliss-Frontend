@@ -4,10 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Award, Clock, Heart, Users, Leaf, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 const About = () => {
   const { toast } = useToast();
+  const { itemCount } = useCart();
+  const navigate = useNavigate();
 
   const values = [
     {
@@ -42,10 +46,10 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header 
-        cartItemCount={0}
+        cartItemCount={itemCount}
         onSearch={() => {}}
-        onCartClick={() => toast({ title: "Cart", description: "Opening shopping cart..." })}
-        onProfileClick={() => toast({ title: "Profile", description: "Opening user profile..." })}
+        onCartClick={() => navigate('/cart')}
+        onProfileClick={() => navigate('/profile')}
       />
 
       <main>

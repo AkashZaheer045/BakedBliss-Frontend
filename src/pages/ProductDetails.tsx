@@ -202,7 +202,8 @@ const ProductDetails = () => {
                             <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                onClick={() => setQuantity(quantity + 1)}
+                                onClick={() => setQuantity(Math.min(quantity + 1, product.stock))}
+                                disabled={quantity >= product.stock}
                                 className="h-10 w-10"
                             >
                                 <Plus className="w-4 h-4" />
@@ -225,10 +226,10 @@ const ProductDetails = () => {
                         </Button>
                         <Button 
                             variant="outline" 
-                            className={`h-12 w-12 p-0 transition-colors ${isFavorite ? 'bg-red-50 hover:bg-red-100 border-red-200' : 'bg-secondary/50 hover:bg-secondary border-transparent'}`}
+                            className={`h-12 w-12 p-0 transition-all border-2 ${isFavorite ? 'bg-red-500 hover:bg-red-600 border-red-500' : 'bg-white hover:bg-gray-100 border-gray-300'}`}
                             onClick={handleToggleFavorite}
                         >
-                            <Heart className={`w-6 h-6 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-foreground'}`} />
+                            <Heart className={`w-6 h-6 ${isFavorite ? 'fill-white text-white' : 'text-gray-600'}`} />
                         </Button>
                     </div>
                 </div>

@@ -26,12 +26,8 @@ const Index = () => {
   };
 
   const handleCategoryClick = (categoryId: string) => {
-    toast({
-      title: "Category Selected",
-      description: `Browsing ${categoryId} category`,
-    });
     // Navigate to menu with category filter
-    navigate("/menu");
+    navigate(`/menu?category=${encodeURIComponent(categoryId)}`);
   };
 
   const handleProductClick = (productId: string) => {

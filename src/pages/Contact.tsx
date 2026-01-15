@@ -8,6 +8,7 @@ import { MapPin, Phone, Mail, Clock, MessageCircle, Send, Loader2 } from "lucide
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 import { contactService } from "@/services";
 
 const Contact = () => {
@@ -19,6 +20,7 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { itemCount } = useCart();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,7 +102,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header
-        cartItemCount={0}
+        cartItemCount={itemCount}
         onSearch={() => { }}
         onCartClick={() => navigate('/cart')}
         onProfileClick={() => navigate('/profile')}

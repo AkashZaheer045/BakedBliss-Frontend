@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { orderService, authService, userService } from "@/services";
 import { ProductCard } from "@/components/ProductCard";
 
@@ -78,9 +79,15 @@ const Profile = () => {
   const [favorites, setFavorites] = useState<any[]>([]);
   const { toast } = useToast();
   const { user, updateUser, logout } = useAuth();
+  const { addToCart, itemCount } = useCart();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'overview';
+
+  // Handler for adding favorites to cart
+  const handleFavoriteAddToCart = async (productId: string) => {
+    await addToCart(parseInt(productId));
+  };
 
   // Fetch user data and orders on mount
   useEffect(() => {
@@ -257,7 +264,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header
-        cartItemCount={0}
+        cartItemCount={itemCount}
         onSearch={() => { }}
         onCartClick={() => navigate('/cart')}
         onProfileClick={() => { }}
@@ -506,7 +513,7 @@ const Profile = () => {
                         key={product.id}
                         {...product}
                         onClick={() => navigate(`/product/${product.id}`)}
-                        onAddToCart={() => {}}
+                        onAddToCart={handleFavoriteAddToCart}
                       />
                     ))}
                   </div>

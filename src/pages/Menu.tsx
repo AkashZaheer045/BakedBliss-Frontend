@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
@@ -27,8 +27,9 @@ const categories = [
 ];
 
 const Menu = () => {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || "all");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || "");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<any[]>([]);
@@ -36,6 +37,19 @@ const Menu = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Read URL params on mount and when they change
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    const searchFromUrl = searchParams.get('search');
+    
+    if (categoryFromUrl && categoryFromUrl !== selectedCategory) {
+      setSelectedCategory(categoryFromUrl);
+    }
+    if (searchFromUrl && searchFromUrl !== searchQuery) {
+      setSearchQuery(searchFromUrl);
+    }
+  }, [searchParams]);
 
   // Load products on mount
   useEffect(() => {
