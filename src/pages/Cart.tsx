@@ -22,6 +22,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<'address' | 'confirm'>('address');
   const [address, setAddress] = useState({ street: "", city: "", state: "", zipCode: "", country: "" });
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -84,14 +85,19 @@ const Cart = () => {
       return;
     }
 
+    setCheckoutStep('address');
     setIsCheckoutOpen(true);
   };
 
-  const confirmOrder = async () => {
+  const proceedToConfirmation = () => {
     if (!address.street || !address.city || !address.zipCode) {
-        toast({ title: "Invaild Address", description: "Please fill in all address fields", variant: "destructive" });
-        return;
+      toast({ title: "Invalid Address", description: "Please fill in all required address fields", variant: "destructive" });
+      return;
     }
+    setCheckoutStep('confirm');
+  };
+
+  const confirmOrder = async () => {
     
     setIsProcessing(true);
     try {
@@ -266,73 +272,125 @@ const Cart = () => {
         )}
       </main>
 
-      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+      <Dialog open={isCheckoutOpen} onOpenChange={(open) => {
+        setIsCheckoutOpen(open);
+        if (!open) setCheckoutStep('address');
+      }}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-                <DialogTitle>Confirm Your Order</DialogTitle>
-                <DialogDescription>Review your order and provide delivery details.</DialogDescription>
-            </DialogHeader>
-            
-            {/* Order Summary Section */}
-            <div className="border rounded-lg p-3 max-h-40 overflow-y-auto bg-muted/30">
-              <h4 className="font-medium text-sm mb-2">Order Summary</h4>
-              {cartItems.map(item => (
-                <div key={item.id} className="flex justify-between text-sm py-1 border-b border-muted last:border-0">
-                  <span className="truncate mr-2">{item.name} x{item.quantity}</span>
-                  <span className="shrink-0 font-medium">${(item.price * item.quantity).toFixed(2)}</span>
-                </div>
-              ))}
-              <div className="border-t mt-2 pt-2 font-semibold flex justify-between text-sm">
-                <span>Total</span>
-                <span className="text-primary">${total.toFixed(2)}</span>
-              </div>
-            </div>
-
-            <div className="space-y-4 py-4">
+          {checkoutStep === 'address' ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Delivery Address</DialogTitle>
+                <DialogDescription>Please provide your delivery details.</DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                    <Label>Street Address</Label>
-                    <Input value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} placeholder="123 Main St" />
+                  <Label>Street Address *</Label>
+                  <Input value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} placeholder="123 Main St" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                            <Label>City</Label>
-                            <Input value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} placeholder="New York" />
-                        </div>
-                        <div className="space-y-2">
-                             <Label>State</Label>
-                             <Input 
-                               value={address.state} 
-                               onChange={handleStateChange} 
-                               placeholder="NY"
-                               pattern="[A-Za-z\s]+"
-                               title="State must contain only letters"
-                             />
-                        </div>
-                        <div className="space-y-2">
-                             <Label>Zip Code</Label>
-                             <Input 
-                               value={address.zipCode} 
-                               onChange={handleZipCodeChange} 
-                               placeholder="10001"
-                               pattern="[0-9]+"
-                               inputMode="numeric"
-                               maxLength={10}
-                               title="Zip code must contain only numbers"
-                             />
-                        </div>
-                    </div>
-                <div className="space-y-2">
+                  <div className="space-y-2">
+                    <Label>City *</Label>
+                    <Input value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} placeholder="New York" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>State</Label>
+                    <Input 
+                      value={address.state} 
+                      onChange={handleStateChange} 
+                      placeholder="NY"
+                      pattern="[A-Za-z\s]+"
+                      title="State must contain only letters"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Zip Code *</Label>
+                    <Input 
+                      value={address.zipCode} 
+                      onChange={handleZipCodeChange} 
+                      placeholder="10001"
+                      pattern="[0-9]+"
+                      inputMode="numeric"
+                      maxLength={10}
+                      title="Zip code must contain only numbers"
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label>Country</Label>
                     <Input value={address.country} onChange={(e) => setAddress({...address, country: e.target.value})} placeholder="United States" />
+                  </div>
                 </div>
-            </div>
-            <DialogFooter>
+              </div>
+
+              <DialogFooter>
                 <Button variant="outline" onClick={() => setIsCheckoutOpen(false)}>Cancel</Button>
-                <Button variant="hero" onClick={confirmOrder} disabled={isProcessing}>
-                    {isProcessing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                    Confirm Order
+                <Button variant="hero" onClick={proceedToConfirmation}>
+                  Continue to Review
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-            </DialogFooter>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Confirm Your Order</DialogTitle>
+                <DialogDescription>Please review your order before confirming.</DialogDescription>
+              </DialogHeader>
+              
+              {/* Order Items */}
+              <div className="border rounded-lg p-3 max-h-40 overflow-y-auto bg-muted/30">
+                <h4 className="font-medium text-sm mb-2">Order Items</h4>
+                {cartItems.map(item => (
+                  <div key={item.id} className="flex justify-between text-sm py-1 border-b border-muted last:border-0">
+                    <span className="truncate mr-2">{item.name} x{item.quantity}</span>
+                    <span className="shrink-0 font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Delivery Address */}
+              <div className="border rounded-lg p-3 bg-muted/30">
+                <h4 className="font-medium text-sm mb-2">Delivery Address</h4>
+                <p className="text-sm text-muted-foreground">
+                  {address.street}<br />
+                  {address.city}{address.state && `, ${address.state}`} {address.zipCode}<br />
+                  {address.country}
+                </p>
+              </div>
+
+              {/* Price Breakdown */}
+              <div className="border rounded-lg p-3 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Tax (8%)</span>
+                  <span>${tax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Delivery</span>
+                  <span>{deliveryFee === 0 ? 'FREE' : `$${deliveryFee.toFixed(2)}`}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span className="text-primary">${total.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <DialogFooter className="flex-col sm:flex-row gap-2">
+                <Button variant="outline" onClick={() => setCheckoutStep('address')} className="w-full sm:w-auto">
+                  Edit Address
+                </Button>
+                <Button variant="hero" onClick={confirmOrder} disabled={isProcessing} className="w-full sm:w-auto">
+                  {isProcessing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Place Order
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
       <Footer />
