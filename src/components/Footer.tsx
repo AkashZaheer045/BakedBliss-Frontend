@@ -5,7 +5,7 @@ import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Twitter } from "lucide
 
 export const Footer = () => {
   return (
-    <footer className="bg-background border-t border-primary/10 safe-bottom">
+    <footer className="bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 border-t border-orange-200/50 safe-bottom">
       <div className="container mx-auto px-4 py-8 sm:py-12">
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {/* Brand & Description */}

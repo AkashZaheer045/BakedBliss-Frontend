@@ -13,12 +13,19 @@ interface CartItem {
   description?: string;
 }
 
+interface AddToCartResult {
+  success: boolean;
+  requiresAuth?: boolean;
+  error?: string;
+}
+
 interface CartContextType {
   cartItems: CartItem[];
   itemCount: number;
   loading: boolean;
+  isAuthenticated: boolean;
   refreshCart: () => Promise<void>;
-  addToCart: (productId: number, quantity?: number) => Promise<void>;
+  addToCart: (productId: number, quantity?: number) => Promise<AddToCartResult>;
   removeFromCart: (productId: number) => Promise<void>;
   updateQuantity: (productId: number, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -66,10 +73,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     fetchCart();
   }, [user]);
 
-  const addToCart = async (productId: number, quantity: number = 1) => {
+  const addToCart = async (productId: number, quantity: number = 1): Promise<AddToCartResult> => {
     if (!user) {
-        toast({ title: "Please Login", description: "You need to log in to add items to cart." });
-        return;
+        // Return requiresAuth flag so components can show login modal
+        return { success: false, requiresAuth: true };
     }
     try {
         await cartService.addToCart({ productId, quantity });
@@ -79,10 +86,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           className: "bg-green-50 border-green-200 text-green-900"
         });
         await fetchCart();
+        return { success: true };
     } catch (error: any) {
         console.error("Add to cart error", error);
-        toast({ title: "Error", description: error.response?.data?.message || "Failed to add item.", variant: "destructive" });
-        throw error;
+        const errorMessage = error.response?.data?.message || "Failed to add item.";
+        toast({ title: "Error", description: errorMessage, variant: "destructive" });
+        return { success: false, error: errorMessage };
     }
   };
 
@@ -122,6 +131,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         cartItems,
         itemCount: cartItems.reduce((sum, item) => sum + item.quantity, 0),
         loading,
+        isAuthenticated: !!user,
         refreshCart: fetchCart,
         addToCart,
         removeFromCart,

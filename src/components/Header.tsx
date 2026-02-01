@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Search, ShoppingCart, User, Heart, Menu, X } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Search, ShoppingCart, User, Heart, Menu, LogIn, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   cartItemCount?: number;
@@ -17,6 +19,7 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -28,6 +31,23 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
   const handleNavigation = (path: string) => {
     navigate(path);
     setMobileMenuOpen(false);
+  };
+
+  const handleProfileAction = () => {
+    if (isAuthenticated) {
+      onProfileClick?.();
+      navigate("/profile");
+    } else {
+      navigate("/auth");
+    }
+  };
+
+  const handleFavoritesClick = () => {
+    if (isAuthenticated) {
+      navigate("/profile?tab=favorites");
+    } else {
+      navigate("/auth");
+    }
   };
 
   return (
@@ -79,20 +99,42 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
                   >
                     Contact
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    onClick={() => handleNavigation("/profile")}
-                    className="justify-start font-medium"
-                  >
-                    My Profile
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    onClick={() => handleNavigation("/cart")}
-                    className="justify-start font-medium"
-                  >
-                    Cart {cartItemCount > 0 && `(${cartItemCount})`}
-                  </Button>
+                  
+                  {isAuthenticated ? (
+                    <>
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => handleNavigation("/profile")}
+                        className="justify-start font-medium"
+                      >
+                        My Profile
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => handleNavigation("/cart")}
+                        className="justify-start font-medium"
+                      >
+                        Cart {cartItemCount > 0 && `(${cartItemCount})`}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => handleNavigation("/auth")}
+                        className="justify-start font-medium gap-2"
+                      >
+                        <LogIn className="w-4 h-4" /> Sign In
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => handleNavigation("/auth")}
+                        className="justify-start font-medium gap-2"
+                      >
+                        <UserPlus className="w-4 h-4" /> Create Account
+                      </Button>
+                    </>
+                  )}
                 </nav>
               </div>
             </SheetContent>
@@ -167,7 +209,7 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
               variant="ghost" 
               size="icon" 
               className="relative hidden sm:flex"
-              onClick={() => navigate("/profile?tab=favorites")}
+              onClick={handleFavoritesClick}
             >
               <Heart className="w-5 h-5" />
             </Button>
@@ -189,17 +231,39 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
               )}
             </Button>
             
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="hidden sm:flex"
-              onClick={() => {
-                onProfileClick?.();
-                navigate("/profile");
-              }}
-            >
-              <User className="w-5 h-5" />
-            </Button>
+            {/* Profile/Auth Button */}
+            {isAuthenticated ? (
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="hidden sm:flex"
+                onClick={handleProfileAction}
+              >
+                <User className="w-5 h-5" />
+              </Button>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="hidden sm:flex"
+                  >
+                    <User className="w-5 h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => navigate("/auth")} className="gap-2 cursor-pointer">
+                    <LogIn className="w-4 h-4" />
+                    Sign In
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/auth")} className="gap-2 cursor-pointer">
+                    <UserPlus className="w-4 h-4" />
+                    Create Account
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>

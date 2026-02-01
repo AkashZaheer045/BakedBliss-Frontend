@@ -19,13 +19,13 @@ import { Reviews } from "@/pages/admin/Reviews";
 import { Promotions } from "@/pages/admin/Promotions";
 import { Settings } from "@/pages/admin/Settings";
 import { ActivityLogs } from "@/pages/admin/ActivityLogs";
-import Index from "./pages/Index";
 import Menu from "./pages/Menu";
 import Cart from "./pages/Cart";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import ProductDetails from "./pages/ProductDetails";
+import PremiumDashboard from "./pages/PremiumDashboard";
 import NotFound from "./pages/NotFound";
 
 // Create queryClient outside component but with a function to clear it
@@ -60,9 +60,9 @@ const AppContent = () => {
     }
   }, [isAuthenticated, user]);
 
-  // Handle logout (redirect to role selection when authenticated becomes false)
+  // Handle logout for admin (customer app stays public)
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && (appState === 'customer-app' || appState === 'admin-app')) {
+    if (!isLoading && !isAuthenticated && appState === 'admin-app') {
       setAppState('role-selection');
       setUserRole(null);
     }
@@ -80,7 +80,9 @@ const AppContent = () => {
         setUserRole('customer');
       }
     } else {
-      setAppState('role-selection');
+      // Go directly to customer app (public access)
+      setAppState('customer-app');
+      setUserRole('customer');
     }
   };
 
@@ -111,13 +113,30 @@ const AppContent = () => {
       window.history.replaceState(null, '', '/');
     }
     
-    // Reset app state
-    setUserRole(null);
-    setAppState('role-selection');
+    // For customers, stay in customer app (public). For admin, go to role selection.
+    if (userRole === 'admin') {
+      setUserRole(null);
+      setAppState('role-selection');
+    } else {
+      // Stay in customer app, just logged out
+      setUserRole('customer');
+    }
   };
 
   const handleBackToRoleSelection = () => {
     setAppState('role-selection');
+  };
+
+  // Handler to go to admin login
+  const handleGoToAdmin = () => {
+    setUserRole('admin');
+    setAppState('auth');
+  };
+
+  // Handler to go to customer auth (from profile button or protected action)
+  const handleGoToAuth = () => {
+    setUserRole('customer');
+    setAppState('auth');
   };
 
   if (appState === 'splash') {
@@ -152,13 +171,15 @@ const AppContent = () => {
         </Routes>
       ) : (
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<PremiumDashboard />} />
           <Route path="/menu" element={<Menu />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/auth" element={<Auth onAuthSuccess={handleAuthSuccess} onBack={() => window.history.back()} role="customer" />} />
+          <Route path="/admin-login" element={<RoleSelection onRoleSelect={handleRoleSelect} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       )}
