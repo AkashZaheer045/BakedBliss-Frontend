@@ -29,7 +29,7 @@ export const bakeryCategories: BakeryCategory[] = [
     id: "breads",
     name: "Artisan Breads",
     subName: "Crusty perfection.",
-    price: "₹80",
+    price: "Rs. 280",
     description: "Stone-baked daily - No preservatives - Traditional recipes",
     folderPath: "/images/breads",
     themeColor: "#D4A574",
@@ -50,7 +50,7 @@ export const bakeryCategories: BakeryCategory[] = [
       description: "We believe bread should be eaten fresh. That's why we bake in small batches throughout the day, ensuring you always get bread that's still warm from the oven. No day-old bread, no compromises."
     },
     buyNowSection: {
-      price: "₹80",
+      price: "Rs. 280",
       unit: "per loaf",
       processingParams: ["Stone Baked", "24h Fermented", "No Additives"],
       deliveryPromise: "Fresh delivery within 2 hours. Wrapped warm from our ovens.",
@@ -61,7 +61,7 @@ export const bakeryCategories: BakeryCategory[] = [
     id: "burger",
     name: "Gourmet Burgers",
     subName: "Flame-grilled glory.",
-    price: "₹180",
+    price: "Rs. 480",
     description: "Premium patties - House-baked buns - Secret sauce",
     folderPath: "/images/burger",
     themeColor: "#E74C3C",
@@ -82,7 +82,7 @@ export const bakeryCategories: BakeryCategory[] = [
       description: "Every burger is assembled fresh upon ordering. We never pre-make or warm up. From the sizzle of the grill to the wrap of the paper, your burger is crafted specifically for you."
     },
     buyNowSection: {
-      price: "₹180",
+      price: "Rs. 480",
       unit: "per burger",
       processingParams: ["Made Fresh", "Premium Beef", "Hot Delivery"],
       deliveryPromise: "Delivered hot and ready. Special insulated packaging.",
@@ -93,7 +93,7 @@ export const bakeryCategories: BakeryCategory[] = [
     id: "cookies",
     name: "Gooey Cookies",
     subName: "Warm centers, golden edges.",
-    price: "₹60",
+    price: "Rs. 360",
     description: "Belgian chocolate - Brown butter - Sea salt finish",
     folderPath: "/images/cookies",
     themeColor: "#8B4513",
@@ -114,7 +114,7 @@ export const bakeryCategories: BakeryCategory[] = [
       description: "We bake cookies every hour. When you order, you're getting cookies that were in the oven minutes ago. That's our freshness promise."
     },
     buyNowSection: {
-      price: "₹60",
+      price: "Rs. 360",
       unit: "per cookie",
       processingParams: ["Baked Fresh", "Belgian Chocolate", "Hand-Crafted"],
       deliveryPromise: "Delivered warm in insulated packaging.",
@@ -125,7 +125,7 @@ export const bakeryCategories: BakeryCategory[] = [
     id: "cupcakes",
     name: "Dreamy Cupcakes",
     subName: "Fluffy clouds of joy.",
-    price: "₹90",
+    price: "Rs. 290",
     description: "Swiss meringue - Real vanilla - Seasonal flavors",
     folderPath: "/images/cupcakes",
     themeColor: "#FF69B4",
@@ -146,7 +146,7 @@ export const bakeryCategories: BakeryCategory[] = [
       description: "We bake our cupcakes in small batches throughout the day. The frosting is piped fresh, never day-old. Each cupcake is a tiny work of art."
     },
     buyNowSection: {
-      price: "₹90",
+      price: "Rs. 290",
       unit: "per cupcake",
       processingParams: ["Fresh Baked", "Swiss Buttercream", "Artisan Crafted"],
       deliveryPromise: "Carefully packaged to preserve every swirl.",
@@ -157,7 +157,7 @@ export const bakeryCategories: BakeryCategory[] = [
     id: "desserts",
     name: "Signature Desserts",
     subName: "Sweet sophistication.",
-    price: "₹250",
+    price: "Rs. 650",
     description: "Patisserie craft - Single-origin cocoa - Seasonal fruits",
     folderPath: "/images/desserts",
     themeColor: "#9B59B6",
@@ -178,7 +178,7 @@ export const bakeryCategories: BakeryCategory[] = [
       description: "Our desserts are made fresh daily. We source seasonal fruits and single-origin chocolate to ensure every component is at its peak. No freezing, no shortcuts."
     },
     buyNowSection: {
-      price: "₹250",
+      price: "Rs. 650",
       unit: "per serving",
       processingParams: ["French Techniques", "Premium Ingredients", "Made Fresh"],
       deliveryPromise: "Cold chain delivery maintains perfect texture.",
@@ -189,7 +189,7 @@ export const bakeryCategories: BakeryCategory[] = [
     id: "pasta",
     name: "Fresh Pasta",
     subName: "Hand-rolled comfort.",
-    price: "₹220",
+    price: "Rs. 820",
     description: "Semolina durum - Farm eggs - Chef's sauces",
     folderPath: "/images/pasta",
     themeColor: "#F5DEB3",
@@ -210,7 +210,7 @@ export const bakeryCategories: BakeryCategory[] = [
       description: "We make our pasta fresh every morning. No dried pasta, no shortcuts. The difference is in every bite—silky, toothsome, and full of eggy richness."
     },
     buyNowSection: {
-      price: "₹220",
+      price: "Rs. 820",
       unit: "per portion",
       processingParams: ["Fresh Made", "Hand Rolled", "Free Range Eggs"],
       deliveryPromise: "Delivered hot with sauce on the side.",
@@ -221,7 +221,7 @@ export const bakeryCategories: BakeryCategory[] = [
     id: "pastries",
     name: "French Pastries",
     subName: "Buttery layers of bliss.",
-    price: "₹120",
+    price: "Rs. 520",
     description: "Pure butter - 72 layers - Paris-trained chefs",
     folderPath: "/images/pastries",
     themeColor: "#FFD700",
@@ -242,7 +242,7 @@ export const bakeryCategories: BakeryCategory[] = [
       description: "We start laminating at 3 AM to have fresh pastries by opening. The butter must be cold, the technique precise. The result? Golden, flaky layers that shatter at the touch."
     },
     buyNowSection: {
-      price: "₹120",
+      price: "Rs. 520",
       unit: "per piece",
       processingParams: ["Pure Butter", "72 Layers", "Fresh Baked"],
       deliveryPromise: "Best enjoyed within 2 hours. We deliver fast.",
@@ -253,7 +253,7 @@ export const bakeryCategories: BakeryCategory[] = [
     id: "pizza",
     name: "Wood-Fired Pizza",
     subName: "900°F of flavor.",
-    price: "₹350",
+    price: "Rs. 1350",
     description: "48hr dough - San Marzano - Wood-fired oven",
     folderPath: "/images/pizza",
     themeColor: "#FF6347",
@@ -274,7 +274,7 @@ export const bakeryCategories: BakeryCategory[] = [
       description: "Pizza waits for no one. We fire your pizza only when your order comes in. The blistered crust, melty cheese, and bubbling sauce arrive at your door minutes after leaving our oven."
     },
     buyNowSection: {
-      price: "₹350",
+      price: "Rs. 1350",
       unit: "per 12\" pizza",
       processingParams: ["Wood-Fired", "48hr Dough", "DOP Tomatoes"],
       deliveryPromise: "Insulated box keeps heat. Delivered within 30 mins.",
@@ -285,7 +285,7 @@ export const bakeryCategories: BakeryCategory[] = [
     id: "snacks",
     name: "Savory Snacks",
     subName: "Crunchy satisfaction.",
-    price: "₹50",
+    price: "Rs. 250",
     description: "House-made - Bold spices - Addictively good",
     folderPath: "/images/snacks",
     themeColor: "#FF8C00",
@@ -306,7 +306,7 @@ export const bakeryCategories: BakeryCategory[] = [
       description: "We fry and bake our snacks fresh throughout the day. No stale bags, no week-old batches. Just peak crunch and flavor in every serving."
     },
     buyNowSection: {
-      price: "₹50",
+      price: "Rs. 250",
       unit: "per portion",
       processingParams: ["Made Fresh", "No MSG", "Bold Spices"],
       deliveryPromise: "Hot and crispy, packaged to preserve crunch.",
