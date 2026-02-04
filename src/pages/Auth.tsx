@@ -3,18 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, ChefHat } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, ChefHat } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 interface AuthProps {
   onAuthSuccess: () => void;
   onBack: () => void;
+  onContinueAsGuest?: () => void;
   role?: 'customer' | 'admin' | null;
 }
 
-export const Auth = ({ onAuthSuccess, onBack, role }: AuthProps) => {
+export const Auth = ({ onAuthSuccess, onBack, onContinueAsGuest, role }: AuthProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +29,7 @@ export const Auth = ({ onAuthSuccess, onBack, role }: AuthProps) => {
   });
   const { toast } = useToast();
   const { login, signup } = useAuth();
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -74,6 +77,8 @@ export const Auth = ({ onAuthSuccess, onBack, role }: AuthProps) => {
 
       setTimeout(() => {
         onAuthSuccess();
+        // Navigate to dashboard - this ensures immediate redirect without reload
+        navigate('/');
       }, 500);
 
     } catch (error: any) {
@@ -127,15 +132,6 @@ export const Auth = ({ onAuthSuccess, onBack, role }: AuthProps) => {
             
             {/* Header Section */}
             <div className="text-center mb-8">
-                <Button
-                    variant="ghost"
-                    onClick={onBack}
-                    className="absolute left-4 top-4 text-gray-500 hover:text-gray-900 hover:bg-white/50"
-                    size="icon"
-                >
-                    <ArrowLeft className="w-5 h-5" />
-                </Button>
-
                 <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-white rounded-full flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-sm border border-orange-100">
                     <ChefHat className="w-8 h-8" />
                 </div>
@@ -214,6 +210,27 @@ export const Auth = ({ onAuthSuccess, onBack, role }: AuthProps) => {
                     {isLoading ? "Signing In..." : "Sign In"}
                   </Button>
                 </form>
+
+                {/* Continue as Guest option */}
+                {role !== 'admin' && (
+                  <div className="pt-4 border-t border-gray-200">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        if (onContinueAsGuest) {
+                          onContinueAsGuest();
+                        } else {
+                          navigate('/');
+                        }
+                      }}
+                      className="w-full h-11 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-lg"
+                    >
+                      Continue as Guest
+                    </Button>
+                    <p className="text-xs text-gray-500 text-center mt-2">Browse without creating an account</p>
+                  </div>
+                )}
               </TabsContent>
 
               {role !== 'admin' && (

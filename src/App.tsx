@@ -92,8 +92,12 @@ const AppContent = () => {
   };
 
   const handleAuthSuccess = () => {
-    // Keep user on current page after auth success
-    // Navigation will be handled by the routes
+    // Reset URL to root before switching state so BrowserRouter renders dashboard
+    if (window.location.pathname !== '/') {
+      window.history.replaceState(null, '', '/');
+    }
+    
+    // Update the app state - the router will render based on the new URL
     if (userRole === 'admin') {
       setAppState('admin-app');
     } else {
@@ -108,19 +112,9 @@ const AppContent = () => {
     // Clear auth state (this also clears localStorage)
     logout();
     
-    // Reset browser URL to root to prevent stale routes
-    if (window.location.pathname !== '/') {
-      window.history.replaceState(null, '', '/');
-    }
-    
-    // For customers, stay in customer app (public). For admin, go to role selection.
-    if (userRole === 'admin') {
-      setUserRole(null);
-      setAppState('role-selection');
-    } else {
-      // Stay in customer app, just logged out
-      setUserRole('customer');
-    }
+    // Redirect to auth screen for both customer and admin
+    setUserRole('customer');
+    setAppState('auth');
   };
 
   const handleBackToRoleSelection = () => {
@@ -139,6 +133,15 @@ const AppContent = () => {
     setAppState('auth');
   };
 
+  // Handler for Continue as Guest - skip auth and go to customer app
+  const handleContinueAsGuest = () => {
+    if (window.location.pathname !== '/') {
+      window.history.replaceState(null, '', '/');
+    }
+    setUserRole('customer');
+    setAppState('customer-app');
+  };
+
   if (appState === 'splash') {
     return <SplashScreen onComplete={handleSplashComplete} />;
   }
@@ -148,7 +151,7 @@ const AppContent = () => {
   }
 
   if (appState === 'auth') {
-    return <Auth onAuthSuccess={handleAuthSuccess} onBack={handleBackToRoleSelection} role={userRole} />;
+    return <Auth onAuthSuccess={handleAuthSuccess} onBack={handleContinueAsGuest} onContinueAsGuest={handleContinueAsGuest} role={userRole} />;
   }
 
   return (

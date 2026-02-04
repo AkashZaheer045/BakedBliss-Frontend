@@ -107,7 +107,7 @@ const PremiumDashboard = () => {
       <Header cartItemCount={itemCount} />
 
       {/* Main Showcase Area */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden">
         
         {/* Warm Gradient Background */}
         <div className="absolute inset-0">
@@ -147,7 +147,7 @@ const PremiumDashboard = () => {
         </div>
 
         {/* Content Container */}
-        <div className="relative z-10 container mx-auto px-8 lg:px-16 py-20">
+        <div className="relative z-10 container mx-auto px-4 sm:px-8 lg:px-16 py-12 md:py-20">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentCategory.id}
@@ -155,7 +155,7 @@ const PremiumDashboard = () => {
               initial="initial"
               animate="animate"
               exit="exit"
-              className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24"
+              className="flex flex-col lg:flex-row items-center gap-8 md:gap-16 lg:gap-24"
             >
               
               {/* Left Side - Product Image with Cinematic Treatment */}
@@ -176,7 +176,7 @@ const PremiumDashboard = () => {
                     whileHover={{ scale: 1.02 }}
                     transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <div className="relative w-[320px] h-[320px] md:w-[420px] md:h-[420px] lg:w-[480px] lg:h-[480px] rounded-3xl overflow-hidden">
+                    <div className="relative w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] md:w-[420px] md:h-[420px] lg:w-[480px] lg:h-[480px] rounded-3xl overflow-hidden">
                       {/* Soft Shadow */}
                       <div 
                         className="absolute inset-0 -z-10 translate-y-6 blur-3xl opacity-30 rounded-3xl"
@@ -197,7 +197,7 @@ const PremiumDashboard = () => {
               </motion.div>
 
               {/* Right Side - Typography & CTA */}
-              <div className="flex-1 max-w-xl">
+              <div className="flex-1 max-w-xl text-center lg:text-left">
                 {/* Category Number */}
                 <motion.p 
                   custom={0}
@@ -211,7 +211,7 @@ const PremiumDashboard = () => {
                 <motion.h1 
                   custom={1}
                   variants={textVariants}
-                  className="text-4xl md:text-5xl lg:text-6xl font-light text-gray-900 tracking-tight leading-[1.1] mb-4"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-gray-900 tracking-tight leading-[1.1] mb-4"
                 >
                   {currentCategory.name}
                 </motion.h1>
@@ -220,7 +220,7 @@ const PremiumDashboard = () => {
                 <motion.p 
                   custom={2}
                   variants={textVariants}
-                  className="text-xl md:text-2xl font-light mb-6"
+                  className="text-lg sm:text-xl md:text-2xl font-light mb-6"
                   style={{ color: currentCategory.themeColor }}
                 >
                   {currentCategory.subName}
@@ -230,7 +230,7 @@ const PremiumDashboard = () => {
                 <motion.p 
                   custom={3}
                   variants={textVariants}
-                  className="text-base text-gray-500 leading-relaxed mb-8 font-light"
+                  className="text-sm sm:text-base text-gray-500 leading-relaxed mb-6 md:mb-8 font-light"
                 >
                   {currentCategory.detailsSection.description.slice(0, 160)}...
                 </motion.p>
@@ -251,11 +251,11 @@ const PremiumDashboard = () => {
                 <motion.div 
                   custom={5}
                   variants={textVariants}
-                  className="flex gap-4"
+                  className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start"
                 >
                   <Button 
                     size="lg"
-                    className="px-8 py-6 text-base font-light tracking-wide text-white rounded-full transition-all duration-500 hover:scale-105"
+                    className="px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base font-light tracking-wide text-white rounded-full transition-all duration-500 hover:scale-105"
                     style={{ backgroundColor: currentCategory.themeColor }}
                     onClick={handleAddToCart}
                   >
@@ -266,7 +266,7 @@ const PremiumDashboard = () => {
                   <Button 
                     size="lg"
                     variant="ghost"
-                    className="px-8 py-6 text-base font-light tracking-wide text-gray-700 rounded-full hover:bg-gray-100 transition-all duration-500"
+                    className="px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base font-light tracking-wide text-gray-700 rounded-full hover:bg-gray-100 transition-all duration-500"
                     onClick={() => navigate("/menu")}
                   >
                     Explore Menu

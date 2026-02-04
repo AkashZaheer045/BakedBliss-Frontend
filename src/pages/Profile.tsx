@@ -223,6 +223,8 @@ const Profile = () => {
       title: "Logged out",
       description: "You have been successfully logged out",
     });
+    // Redirect to auth page
+    navigate('/auth');
   };
 
   const [cancellingId, setCancellingId] = useState<string | null>(null);
