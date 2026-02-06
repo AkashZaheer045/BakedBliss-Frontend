@@ -35,6 +35,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -58,7 +66,7 @@ interface UserStats {
 }
 
 const Profile = () => {
-  const [editMode, setEditMode] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -75,6 +83,12 @@ const Profile = () => {
     address: "",
     joinDate: "",
     membershipLevel: "Member"
+  });
+  // Edit form state (separate from display state)
+  const [editForm, setEditForm] = useState({
+    name: "",
+    phone: "",
+    address: ""
   });
   const [favorites, setFavorites] = useState<any[]>([]);
   const { toast } = useToast();
@@ -181,6 +195,16 @@ const Profile = () => {
     fetchData();
   }, [user]);
 
+  // Open edit dialog and populate form
+  const openEditDialog = () => {
+    setEditForm({
+      name: userInfo.name,
+      phone: userInfo.phone,
+      address: userInfo.address
+    });
+    setEditDialogOpen(true);
+  };
+
   const handleSave = async () => {
     if (!user) return;
 
@@ -188,19 +212,27 @@ const Profile = () => {
     try {
       // Update user profile via API
       const response = await authService.updateProfile(user.user_id, {
-        full_name: userInfo.name,
-        phone_number: userInfo.phone
+        full_name: editForm.name,
+        phone_number: editForm.phone
       });
 
       if (response.status === 'success' || response.success) {
         // Update auth context
         updateUser({
           ...user,
-          full_name: userInfo.name,
-          phone_number: userInfo.phone
+          full_name: editForm.name,
+          phone_number: editForm.phone
         });
 
-        setEditMode(false);
+        // Update display state
+        setUserInfo(prev => ({
+          ...prev,
+          name: editForm.name,
+          phone: editForm.phone,
+          address: editForm.address
+        }));
+
+        setEditDialogOpen(false);
         toast({
           title: "Profile updated!",
           description: "Your profile information has been saved successfully.",
@@ -251,8 +283,8 @@ const Profile = () => {
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setUserInfo(prev => ({ ...prev, [field]: value }));
+  const handleEditFormChange = (field: string, value: string) => {
+    setEditForm(prev => ({ ...prev, [field]: value }));
   };
 
   if (loading) {
@@ -314,13 +346,13 @@ const Profile = () => {
                 <div className="flex gap-2 sm:gap-3">
                   <Button
                     variant="outline"
-                    onClick={() => setEditMode(!editMode)}
+                    onClick={openEditDialog}
                     className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-sm"
                     size="sm"
                   >
                     <Edit className="w-4 h-4" />
-                    <span className="hidden sm:inline">{editMode ? 'Cancel' : 'Edit Profile'}</span>
-                    <span className="sm:hidden">{editMode ? 'Cancel' : 'Edit'}</span>
+                    <span className="hidden sm:inline">Edit Profile</span>
+                    <span className="sm:hidden">Edit</span>
                   </Button>
                   <Button
                     variant="destructive"
@@ -360,15 +392,7 @@ const Profile = () => {
                 <CardContent className="space-y-3 sm:space-y-4">
                   <div>
                     <label className="text-xs sm:text-sm font-medium mb-1 block">Full Name</label>
-                    {editMode ? (
-                      <Input
-                        value={userInfo.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
-                        className="border-primary/20 text-sm"
-                      />
-                    ) : (
-                      <p className="text-sm text-muted-foreground">{userInfo.name || 'Not set'}</p>
-                    )}
+                    <p className="text-sm text-muted-foreground">{userInfo.name || 'Not set'}</p>
                   </div>
                   <div>
                     <label className="text-xs sm:text-sm font-medium mb-1 block">Email</label>
@@ -376,34 +400,12 @@ const Profile = () => {
                   </div>
                   <div>
                     <label className="text-xs sm:text-sm font-medium mb-1 block">Phone</label>
-                    {editMode ? (
-                      <Input
-                        value={userInfo.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        className="border-primary/20 text-sm"
-                      />
-                    ) : (
-                      <p className="text-sm text-muted-foreground">{userInfo.phone || 'Not set'}</p>
-                    )}
+                    <p className="text-sm text-muted-foreground">{userInfo.phone || 'Not set'}</p>
                   </div>
                   <div>
                     <label className="text-xs sm:text-sm font-medium mb-1 block">Address</label>
-                    {editMode ? (
-                      <Input
-                        value={userInfo.address}
-                        onChange={(e) => handleInputChange('address', e.target.value)}
-                        className="border-primary/20 text-sm"
-                      />
-                    ) : (
-                      <p className="text-sm text-muted-foreground">{userInfo.address || 'Not set'}</p>
-                    )}
+                    <p className="text-sm text-muted-foreground">{userInfo.address || 'Not set'}</p>
                   </div>
-                  {editMode && (
-                    <Button onClick={handleSave} variant="hero" className="w-auto" size="sm" disabled={saving}>
-                      {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                      Save Changes
-                    </Button>
-                  )}
                 </CardContent>
               </Card>
 
@@ -569,6 +571,59 @@ const Profile = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Edit Profile Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Edit className="w-5 h-5 text-primary" />
+                Edit Profile
+              </DialogTitle>
+              <DialogDescription>
+                Update your personal information below.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Full Name</label>
+                <Input
+                  value={editForm.name}
+                  onChange={(e) => handleEditFormChange('name', e.target.value)}
+                  placeholder="Enter your full name"
+                  className="border-primary/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Phone Number</label>
+                <Input
+                  value={editForm.phone}
+                  onChange={(e) => handleEditFormChange('phone', e.target.value)}
+                  placeholder="Enter your phone number"
+                  className="border-primary/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Address</label>
+                <Input
+                  value={editForm.address}
+                  onChange={(e) => handleEditFormChange('address', e.target.value)}
+                  placeholder="Enter your address"
+                  className="border-primary/20"
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave} variant="hero" disabled={saving}>
+                {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
 
       <Footer />
