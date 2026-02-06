@@ -112,13 +112,13 @@ const PremiumDashboard = () => {
         {/* Warm Gradient Background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50/80 to-rose-50" />
-          {/* Soft Light Glow */}
+          {/* Soft Light Glow - Responsive sizing */}
           <motion.div 
             key={`glow-${currentIndex}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
             transition={{ duration: 2 }}
-            className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full blur-[150px]"
+            className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] h-[300px] xs:w-[400px] xs:h-[400px] sm:w-[600px] sm:h-[600px] md:w-[800px] md:h-[800px] rounded-full blur-[80px] xs:blur-[100px] sm:blur-[120px] md:blur-[150px]"
             style={{ backgroundColor: currentCategory.themeColor + "25" }}
           />
         </div>
@@ -279,7 +279,7 @@ const PremiumDashboard = () => {
         </div>
 
         {/* Progress Indicator */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-3">
+        <div className="absolute bottom-6 sm:bottom-10 md:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-3 sm:gap-4">
           {bakeryCategories.map((_, i) => (
             <button
               key={i}
@@ -287,40 +287,34 @@ const PremiumDashboard = () => {
                 setIsAutoPlaying(false);
                 setCurrentIndex(i);
               }}
-              className="group relative"
+              className="p-1 bg-transparent border-none outline-none cursor-pointer"
+              aria-label={`Go to slide ${i + 1}`}
             >
-              <div className={`w-12 h-[2px] rounded-full transition-all duration-500 ${
-                i === currentIndex ? "bg-gray-900" : "bg-gray-300"
-              }`}>
-                {i === currentIndex && (
-                  <motion.div
-                    className="absolute inset-0 rounded-full"
-                    style={{ backgroundColor: currentCategory.themeColor }}
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 6, ease: "linear" }}
-                  />
-                )}
-              </div>
+              <span 
+                className={`block w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-colors duration-300 ${
+                  i === currentIndex ? "" : "bg-gray-300"
+                }`}
+                style={i === currentIndex ? { backgroundColor: currentCategory.themeColor } : {}}
+              />
             </button>
           ))}
         </div>
       </section>
 
       {/* Featured Products Grid - Clean & Minimal */}
-      <section className="py-24 bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50">
-        <div className="container mx-auto px-8">
+      <section className="py-12 xs:py-16 sm:py-20 md:py-24 bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50">
+        <div className="container mx-auto px-3 xs:px-4 sm:px-6 md:px-8">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             viewport={{ once: true }}
-            className="text-3xl font-light text-center text-gray-900 mb-16 tracking-tight"
+            className="text-xl xs:text-2xl sm:text-3xl font-light text-center text-gray-900 mb-8 xs:mb-10 sm:mb-12 md:mb-16 tracking-tight"
           >
             Explore the Collection
           </motion.h2>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 xs:gap-4 sm:gap-5 md:gap-6">
             {bakeryCategories.slice(0, 8).map((cat, i) => (
               <motion.button
                 key={cat.id}
@@ -339,7 +333,7 @@ const PremiumDashboard = () => {
                 }}
                 className="group text-left"
               >
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 mb-4">
+                <div className="relative aspect-square rounded-lg xs:rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 mb-2 xs:mb-3 sm:mb-4">
                   <img 
                     src={categoryHeroImages[cat.id]}
                     alt={cat.name}
@@ -347,8 +341,8 @@ const PremiumDashboard = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </div>
-                <p className="text-base font-light text-gray-900 mb-1">{cat.name}</p>
-                <p className="text-sm text-gray-400">{cat.buyNowSection.price}</p>
+                <p className="text-xs xs:text-sm sm:text-base font-light text-gray-900 mb-0.5 xs:mb-1 truncate">{cat.name}</p>
+                <p className="text-[10px] xs:text-xs sm:text-sm text-gray-400">{cat.buyNowSection.price}</p>
               </motion.button>
             ))}
           </div>

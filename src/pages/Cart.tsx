@@ -143,10 +143,10 @@ const Cart = () => {
         onProfileClick={() => navigate('/profile')}
       />
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Shopping Cart</h1>
-          <p className="text-muted-foreground">Review your selected items</p>
+      <main className="container mx-auto px-3 xs:px-4 py-4 xs:py-6 sm:py-8">
+        <div className="mb-4 xs:mb-6 sm:mb-8">
+          <h1 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-foreground mb-1 xs:mb-2">Shopping Cart</h1>
+          <p className="text-sm xs:text-base text-muted-foreground">Review your selected items</p>
         </div>
 
         {cartItems.length === 0 ? (
@@ -159,50 +159,50 @@ const Cart = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-4 xs:gap-6 sm:gap-8">
             {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-3 xs:space-y-4">
               {cartItems.map((item) => (
                 <Card key={item.id} className="border-primary/10">
-                  <CardContent className="p-6">
-                    <div className="flex gap-4">
+                  <CardContent className="p-3 xs:p-4 sm:p-6">
+                    <div className="flex gap-2 xs:gap-3 sm:gap-4">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-20 h-20 object-cover rounded-lg"
+                        className="w-16 h-16 xs:w-18 xs:h-18 sm:w-20 sm:h-20 object-cover rounded-lg shrink-0"
                       />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg mb-1">{item.name}</h3>
-                        <p className="text-muted-foreground text-sm mb-3">{item.description}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-primary text-lg">${item.price}</span>
-                          <div className="flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm xs:text-base sm:text-lg mb-0.5 xs:mb-1 truncate">{item.name}</h3>
+                        <p className="text-muted-foreground text-xs xs:text-sm mb-2 xs:mb-3 line-clamp-1 sm:line-clamp-none">{item.description}</p>
+                        <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2 xs:gap-0">
+                          <span className="font-bold text-primary text-base xs:text-lg">${item.price}</span>
+                          <div className="flex items-center gap-2 xs:gap-3">
                             <div className="flex items-center border border-primary/20 rounded-lg">
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="h-8 w-8"
+                                className="h-7 w-7 xs:h-8 xs:w-8"
                                 onClick={() => updateQuantity(item.id, item.quantity - 1)}
                               >
-                                <Minus className="w-4 h-4" />
+                                <Minus className="w-3 h-3 xs:w-4 xs:h-4" />
                               </Button>
-                              <span className="px-3 py-1 text-sm font-medium">{item.quantity}</span>
+                              <span className="px-2 xs:px-3 py-1 text-xs xs:text-sm font-medium">{item.quantity}</span>
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="h-8 w-8"
+                                className="h-7 w-7 xs:h-8 xs:w-8"
                                 onClick={() => updateQuantity(item.id, item.quantity + 1)}
                               >
-                                <Plus className="w-4 h-4" />
+                                <Plus className="w-3 h-3 xs:w-4 xs:h-4" />
                               </Button>
                             </div>
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-8 w-8 text-destructive hover:text-destructive"
+                              className="h-7 w-7 xs:h-8 xs:w-8 text-destructive hover:text-destructive"
                               onClick={() => removeItem(item.id)}
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3 h-3 xs:w-4 xs:h-4" />
                             </Button>
                           </div>
                         </div>
@@ -215,26 +215,26 @@ const Cart = () => {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <Card className="border-primary/10 sticky top-8">
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-lg mb-4">Order Summary</h3>
+              <Card className="border-primary/10 sticky top-4 xs:top-6 sm:top-8">
+                <CardContent className="p-3 xs:p-4 sm:p-6">
+                  <h3 className="font-semibold text-base xs:text-lg mb-3 xs:mb-4">Order Summary</h3>
 
-                  <div className="space-y-3 mb-4">
-                    <div className="flex justify-between">
+                  <div className="space-y-2 xs:space-y-3 mb-3 xs:mb-4">
+                    <div className="flex justify-between text-sm xs:text-base">
                       <span className="text-muted-foreground">Subtotal</span>
                       <span>${subtotal.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between text-sm xs:text-base">
                       <span className="text-muted-foreground">Tax</span>
                       <span>${tax.toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between text-sm xs:text-base">
                       <span className="text-muted-foreground">Delivery</span>
                       <div className="text-right">
                         {deliveryFee === 0 ? (
                           <div>
                             <span className="text-success font-medium">FREE</span>
-                            <Badge variant="secondary" className="ml-1 text-xs">$50+</Badge>
+                            <Badge variant="secondary" className="ml-1 text-[10px] xs:text-xs">$50+</Badge>
                           </div>
                         ) : (
                           <span>${deliveryFee.toFixed(2)}</span>
@@ -243,9 +243,9 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  <Separator className="my-4" />
+                  <Separator className="my-3 xs:my-4" />
 
-                  <div className="flex justify-between text-lg font-semibold mb-6">
+                  <div className="flex justify-between text-base xs:text-lg font-semibold mb-4 xs:mb-6">
                     <span>Total</span>
                     <span className="text-primary">${total.toFixed(2)}</span>
                   </div>
@@ -253,7 +253,7 @@ const Cart = () => {
                   <Button
                     variant="hero"
                     size="lg"
-                    className="w-full group"
+                    className="w-full group text-sm xs:text-base"
                     onClick={handleCheckout}
                   >
                     Proceed to Checkout
@@ -261,7 +261,7 @@ const Cart = () => {
                   </Button>
 
                   {subtotal < 50 && (
-                    <p className="text-xs text-muted-foreground mt-3 text-center">
+                    <p className="text-[10px] xs:text-xs text-muted-foreground mt-2 xs:mt-3 text-center">
                       Add ${(50 - subtotal).toFixed(2)} more for free delivery!
                     </p>
                   )}
@@ -276,36 +276,37 @@ const Cart = () => {
         setIsCheckoutOpen(open);
         if (!open) setCheckoutStep('address');
       }}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] xs:w-auto max-w-md mx-auto">
           {checkoutStep === 'address' ? (
             <>
               <DialogHeader>
-                <DialogTitle>Delivery Address</DialogTitle>
-                <DialogDescription>Please provide your delivery details.</DialogDescription>
+                <DialogTitle className="text-base xs:text-lg">Delivery Address</DialogTitle>
+                <DialogDescription className="text-xs xs:text-sm">Please provide your delivery details.</DialogDescription>
               </DialogHeader>
               
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label>Street Address *</Label>
-                  <Input value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} placeholder="123 Main St" />
+              <div className="space-y-3 xs:space-y-4 py-3 xs:py-4">
+                <div className="space-y-1.5 xs:space-y-2">
+                  <Label className="text-xs xs:text-sm">Street Address *</Label>
+                  <Input value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} placeholder="123 Main St" className="text-sm" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>City *</Label>
-                    <Input value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} placeholder="New York" />
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4">
+                  <div className="space-y-1.5 xs:space-y-2">
+                    <Label className="text-xs xs:text-sm">City *</Label>
+                    <Input value={address.city} onChange={(e) => setAddress({...address, city: e.target.value})} placeholder="New York" className="text-sm" />
                   </div>
-                  <div className="space-y-2">
-                    <Label>State</Label>
+                  <div className="space-y-1.5 xs:space-y-2">
+                    <Label className="text-xs xs:text-sm">State</Label>
                     <Input 
                       value={address.state} 
                       onChange={handleStateChange} 
                       placeholder="NY"
                       pattern="[A-Za-z\s]+"
                       title="State must contain only letters"
+                      className="text-sm"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Zip Code *</Label>
+                  <div className="space-y-1.5 xs:space-y-2">
+                    <Label className="text-xs xs:text-sm">Zip Code *</Label>
                     <Input 
                       value={address.zipCode} 
                       onChange={handleZipCodeChange} 
@@ -314,11 +315,12 @@ const Cart = () => {
                       inputMode="numeric"
                       maxLength={10}
                       title="Zip code must contain only numbers"
+                      className="text-sm"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Country</Label>
-                    <Input value={address.country} onChange={(e) => setAddress({...address, country: e.target.value})} placeholder="United States" />
+                  <div className="space-y-1.5 xs:space-y-2">
+                    <Label className="text-xs xs:text-sm">Country</Label>
+                    <Input value={address.country} onChange={(e) => setAddress({...address, country: e.target.value})} placeholder="United States" className="text-sm" />
                   </div>
                 </div>
               </div>

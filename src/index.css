@@ -47,12 +47,26 @@ All colors MUST be HSL.
     --radius: 0.75rem;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-muted)));
-    --gradient-warm: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--secondary)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(19 100% 65%));
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(var(--primary-muted))
+    );
+    --gradient-warm: linear-gradient(
+      135deg,
+      hsl(var(--primary) / 0.1),
+      hsl(var(--secondary))
+    );
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(19 100% 65%)
+    );
 
     /* Shadows */
-    --shadow-warm: 0 4px 6px -1px hsl(var(--primary) / 0.1), 0 2px 4px -1px hsl(var(--primary) / 0.06);
+    --shadow-warm:
+      0 4px 6px -1px hsl(var(--primary) / 0.1),
+      0 2px 4px -1px hsl(var(--primary) / 0.06);
     --shadow-glow: 0 10px 30px -5px hsl(var(--primary) / 0.3);
     --shadow-subtle: 0 1px 3px 0 hsl(20 14% 4% / 0.1);
 
@@ -143,12 +157,18 @@ All colors MUST be HSL.
   }
 
   /* Improve touch targets on mobile */
-  button, a, input, select, textarea {
+  button,
+  a,
+  input,
+  select,
+  textarea {
     min-height: 44px;
   }
 
   /* Better form inputs on mobile */
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px; /* Prevents iOS zoom on focus */
   }
 }
@@ -156,7 +176,7 @@ All colors MUST be HSL.
 /* Mobile-first responsive utilities */
 @layer utilities {
   .container {
-    @apply px-4 sm:px-6 lg:px-8;
+    @apply px-3 xs:px-4 sm:px-6 lg:px-8;
     max-width: 100%;
   }
 
@@ -181,5 +201,23 @@ All colors MUST be HSL.
   /* Touch-friendly spacing */
   .touch-target {
     @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Extra small screen text utilities */
+  .text-xs-mobile {
+    @apply text-[10px] xs:text-xs sm:text-sm;
+  }
+
+  .text-sm-mobile {
+    @apply text-xs xs:text-sm sm:text-base;
+  }
+
+  /* Mobile-optimized spacing */
+  .gap-mobile {
+    @apply gap-2 xs:gap-3 sm:gap-4;
+  }
+
+  .p-mobile {
+    @apply p-2 xs:p-3 sm:p-4;
   }
 }

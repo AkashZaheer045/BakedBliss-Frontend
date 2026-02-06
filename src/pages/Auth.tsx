@@ -127,24 +127,24 @@ export const Auth = ({ onAuthSuccess, onBack, onContinueAsGuest, role }: AuthPro
       </div>
 
       {/* Main Card */}
-      <Card className="w-full max-w-md relative z-20 bg-white/80 backdrop-blur-xl shadow-2xl border-white/40 animate-fade-in my-8">
-        <div className="p-6 sm:p-8">
+      <Card className="w-full max-w-md relative z-20 bg-white/80 backdrop-blur-xl shadow-2xl border-white/40 animate-fade-in my-4 xs:my-6 sm:my-8 mx-2 xs:mx-4">
+        <div className="p-4 xs:p-6 sm:p-8">
             
             {/* Header Section */}
-            <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-white rounded-full flex items-center justify-center mx-auto mb-4 text-orange-600 shadow-sm border border-orange-100">
-                    <ChefHat className="w-8 h-8" />
+            <div className="text-center mb-4 xs:mb-6 sm:mb-8">
+                <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-100 to-white rounded-full flex items-center justify-center mx-auto mb-3 xs:mb-4 text-orange-600 shadow-sm border border-orange-100">
+                    <ChefHat className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8" />
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Baked Bliss</h1>
-                <p className="text-sm text-gray-600 mt-2 font-medium">Your daily dose of fresh pastries</p>
+                <h1 className="text-2xl xs:text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Baked Bliss</h1>
+                <p className="text-xs xs:text-sm text-gray-600 mt-1 xs:mt-2 font-medium">Your daily dose of fresh pastries</p>
             </div>
 
             {/* Tabs & Form */}
             <Tabs defaultValue="login" className="w-full">
-              <TabsList className={`grid w-full mb-8 h-12 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50 ${role === 'admin' ? 'grid-cols-1' : 'grid-cols-2'}`}>
+              <TabsList className={`grid w-full mb-4 xs:mb-6 sm:mb-8 h-10 xs:h-11 sm:h-12 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50 ${role === 'admin' ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 <TabsTrigger 
                     value="login" 
-                    className="h-10 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm transition-all"
+                    className="h-8 xs:h-9 sm:h-10 rounded-lg text-xs xs:text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-orange-600 data-[state=active]:shadow-sm transition-all"
                 >
                     Login
                 </TabsTrigger>
