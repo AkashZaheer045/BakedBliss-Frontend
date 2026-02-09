@@ -25,6 +25,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import ProductDetails from "./pages/ProductDetails";
+import OrderSummary from "./pages/OrderSummary";
 import PremiumDashboard from "./pages/PremiumDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -181,6 +182,7 @@ const AppContent = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/order/:id" element={<OrderSummary />} />
           <Route path="/auth" element={<Auth onAuthSuccess={handleAuthSuccess} onBack={() => window.history.back()} role="customer" />} />
           <Route path="/admin-login" element={<RoleSelection onRoleSelect={handleRoleSelect} />} />
           <Route path="*" element={<NotFound />} />

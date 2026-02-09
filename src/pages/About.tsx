@@ -143,7 +143,7 @@ const About = () => {
                   </p>
                 </div>
                 <div className="mt-8">
-                  <Button variant="hero" size="lg">
+                  <Button variant="hero" size="lg" onClick={() => navigate('/contact')}>
                     Visit Our Store
                   </Button>
                 </div>
@@ -181,10 +181,10 @@ const About = () => {
               Order now and discover why our customers keep coming back for more.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="hero" size="lg">
+              <Button variant="hero" size="lg" onClick={() => navigate('/menu')}>
                 Order Now
               </Button>
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" onClick={() => navigate('/menu')}>
                 View Menu
               </Button>
             </div>

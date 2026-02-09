@@ -2,12 +2,13 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { authService, AuthResponse } from '@/services';
 
 interface User {
-    user_id: string;
+    id: number;
     full_name: string;
     email: string;
     phone_number?: string;
     role: string;
     profile_picture?: string;
+    created_at?: string;
 }
 
 interface AuthContextType {
@@ -50,14 +51,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
             // Backend returns { status: "success", data: { user: {...}, accessToken, refreshToken } }
             if (response.status === 'success' && response.data?.user && response.data?.accessToken) {
-                // Map backend camelCase response to frontend snake_case User interface
                 const userData: User = {
-                    user_id: response.data.user.userId,
+                    id: response.data.user.id,
                     full_name: response.data.user.fullName,
                     email: response.data.user.email,
                     phone_number: response.data.user.phoneNumber,
                     role: response.data.user.role,
                     profile_picture: response.data.user.profilePicture,
+                    created_at: response.data.user.dateJoined,
                 };
                 const authToken = response.data.accessToken;
                 
@@ -96,12 +97,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (response.status === 'success' && response.data?.user && response.data?.accessToken) {
                 // Map backend camelCase response to frontend snake_case User interface
                 const userData: User = {
-                    user_id: response.data.user.userId,
+                    id: response.data.user.id,
                     full_name: response.data.user.fullName,
                     email: response.data.user.email,
                     phone_number: response.data.user.phoneNumber,
                     role: response.data.user.role,
                     profile_picture: response.data.user.profilePicture,
+                    created_at: response.data.user.dateJoined,
                 };
                 const authToken = response.data.accessToken;
 

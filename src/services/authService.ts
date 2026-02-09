@@ -27,7 +27,7 @@ export interface AuthResponse {
     message: string;
     data: {
         user: {
-            userId: string;
+            id: number;
             fullName: string;
             email: string;
             phoneNumber?: string;
@@ -62,13 +62,13 @@ const authService = {
     },
 
     // Get user profile
-    getUserProfile: async (userId: string) => {
+    getUserProfile: async (userId: number) => {
         const response = await apiClient.get(`/users/profile/${userId}`);
         return response.data;
     },
 
     // Update user profile
-    updateProfile: async (userId: string, data: { full_name?: string; phone_number?: string; profile_picture?: string }) => {
+    updateProfile: async (userId: number, data: { full_name?: string; phone_number?: string; profile_picture?: string }) => {
         const apiData = {
             fullName: data.full_name,
             phoneNumber: data.phone_number,

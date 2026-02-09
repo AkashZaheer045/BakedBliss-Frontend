@@ -36,7 +36,7 @@ const ProductDetails = () => {
         
         // Check if favorite logic
         if (user) {
-             const favResponse = await userService.getFavorites(user.user_id);
+             const favResponse = await userService.getFavorites(user.id);
              if (favResponse.status === 'success' && favResponse.data) {
                  const isFav = favResponse.data.some((f: any) => 
                      (f.product_id?.toString() === id || f.id?.toString() === id)
@@ -73,11 +73,11 @@ const ProductDetails = () => {
 
     try {
         if (isFavorite) {
-            await userService.removeFavorite(user.user_id, product.id);
+            await userService.removeFavorite(user.id, product.id);
             setIsFavorite(false);
             toast({ title: "Removed from Favorites" });
         } else {
-            await userService.addFavorite(user.user_id, product.id);
+            await userService.addFavorite(user.id, product.id);
             setIsFavorite(true);
             toast({ title: "Added to Favorites" });
         }

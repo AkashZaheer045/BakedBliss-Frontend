@@ -58,6 +58,30 @@ interface Order {
   items: string[];
 }
 
+interface OrderDetails {
+  orderId: string;
+  status: string;
+  createdAt: string;
+  totalAmount: number;
+  paymentMethod: string;
+  paymentStatus: string;
+  shippingAddress: {
+    fullName: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  items: {
+    id: string;
+    title: string;
+    quantity: number;
+    price: number;
+    thumbnail?: string;
+  }[];
+}
+
 interface UserStats {
   totalOrders: number;
   totalSpent: number;
@@ -114,19 +138,52 @@ const Profile = () => {
       try {
         setLoading(true);
 
-        // Set user info from auth context
-        setUserInfo({
-          name: user.full_name || "",
-          email: user.email || "",
-          phone: user.phone_number || "",
-          address: "",
-          joinDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-          membershipLevel: user.role === 'admin' ? 'Admin' : 'Member'
-        });
+        // Fetch fresh profile data from API
+        try {
+          const profileResponse = await userService.getProfile(user.id);
+          if (profileResponse.status === 'success' && profileResponse.data) {
+            const profile = profileResponse.data;
+            setUserInfo({
+              name: profile.fullName || user.full_name || "",
+              email: profile.email || user.email || "",
+              phone: profile.phoneNo || user.phone_number || "",
+              address: "",
+              joinDate: profile.dateJoined 
+                ? new Date(profile.dateJoined).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+              membershipLevel: profile.role === 'admin' ? 'Admin' : 'Member'
+            });
+          } else {
+            // Fallback to auth context data
+            setUserInfo({
+              name: user.full_name || "",
+              email: user.email || "",
+              phone: user.phone_number || "",
+              address: "",
+              joinDate: user.created_at 
+                ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+              membershipLevel: user.role === 'admin' ? 'Admin' : 'Member'
+            });
+          }
+        } catch (profileError) {
+          console.error("Failed to fetch profile:", profileError);
+          // Fallback to auth context data
+          setUserInfo({
+            name: user.full_name || "",
+            email: user.email || "",
+            phone: user.phone_number || "",
+            address: "",
+            joinDate: user.created_at 
+              ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+              : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+            membershipLevel: user.role === 'admin' ? 'Admin' : 'Member'
+          });
+        }
 
         // Fetch user orders
         try {
-          const ordersResponse = await orderService.getUserOrders(user.user_id);
+          const ordersResponse = await orderService.getUserOrders(user.id);
           if (ordersResponse.status === 'success' || ordersResponse.success) {
             const rawOrders = ordersResponse.orders || ordersResponse.data || [];
             const mappedOrders: Order[] = rawOrders.map((order: any) => ({
@@ -156,7 +213,7 @@ const Profile = () => {
 
             // Fetch favorites
             try {
-               const favResponse = await userService.getFavorites(user.user_id);
+               const favResponse = await userService.getFavorites(user.id);
                if ((favResponse.status === 'success' || favResponse.success) && favResponse.data) {
                   const favItems = favResponse.data.map((f: any) => ({
                       id: f.product?.id?.toString() || f.id?.toString(),
@@ -211,7 +268,7 @@ const Profile = () => {
     setSaving(true);
     try {
       // Update user profile via API
-      const response = await authService.updateProfile(user.user_id, {
+      const response = await authService.updateProfile(user.id, {
         full_name: editForm.name,
         phone_number: editForm.phone
       });
@@ -261,6 +318,58 @@ const Profile = () => {
 
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
+  
+  // Order summary dialog state
+  const [orderSummaryOpen, setOrderSummaryOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<OrderDetails | null>(null);
+  const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
+
+  const openOrderSummary = async (orderId: string) => {
+    setLoadingOrderDetails(true);
+    setOrderSummaryOpen(true);
+    
+    try {
+      const response = await orderService.getOrderById(orderId);
+      
+      if (response.status === 'success' || response.success) {
+        const orderData = response.order || response.data;
+        
+        setSelectedOrder({
+          orderId: orderData.orderId || orderData.order_id || `ORD-${orderData.id}`,
+          status: orderData.status || 'Pending',
+          createdAt: orderData.createdAt || orderData.created_at,
+          totalAmount: parseFloat(orderData.totalAmount || orderData.total_amount) || 0,
+          paymentMethod: orderData.paymentMethod || orderData.payment_method || 'COD',
+          paymentStatus: orderData.paymentStatus || orderData.payment_status || 'Pending',
+          shippingAddress: orderData.shippingAddress || orderData.shipping_address || {
+            fullName: orderData.fullName || '',
+            phone: orderData.phone || '',
+            address: orderData.address || '',
+            city: orderData.city || '',
+            state: orderData.state || '',
+            pincode: orderData.pincode || ''
+          },
+          items: (orderData.cartItems || orderData.cart_items || orderData.items || []).map((item: any) => ({
+            id: item.id?.toString() || item.productId?.toString(),
+            title: item.title || item.name || 'Item',
+            quantity: item.quantity || 1,
+            price: parseFloat(item.price || item.sale_price) || 0,
+            thumbnail: item.thumbnail || item.image
+          }))
+        });
+      }
+    } catch (error: any) {
+      console.error("Failed to fetch order:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load order details",
+        variant: "destructive"
+      });
+      setOrderSummaryOpen(false);
+    } finally {
+      setLoadingOrderDetails(false);
+    }
+  };
 
   const confirmCancelOrder = async () => {
     if (!orderToCancel) return;
@@ -472,7 +581,7 @@ const Profile = () => {
                             variant="outline" 
                             size="sm"
                             className="text-xs sm:text-sm"
-                            onClick={() => navigate(`/order/${order.id}`)}
+                            onClick={() => openOrderSummary(order.id)}
                           >
                             View Summary
                           </Button>
@@ -620,6 +729,119 @@ const Profile = () => {
               <Button onClick={handleSave} variant="hero" disabled={saving}>
                 {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Order Summary Dialog */}
+        <Dialog open={orderSummaryOpen} onOpenChange={setOrderSummaryOpen}>
+          <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Package className="w-5 h-5 text-primary" />
+                Order Summary
+              </DialogTitle>
+              {selectedOrder && (
+                <DialogDescription>
+                  Order ID: {selectedOrder.orderId}
+                </DialogDescription>
+              )}
+            </DialogHeader>
+            
+            {loadingOrderDetails ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : selectedOrder ? (
+              <div className="space-y-4">
+                {/* Status Badge */}
+                <div className="flex justify-between items-center">
+                  <Badge variant={selectedOrder.status === 'Delivered' ? 'default' : 'secondary'}>
+                    {selectedOrder.status}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    {new Date(selectedOrder.createdAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </span>
+                </div>
+
+                <Separator />
+
+                {/* Order Items */}
+                <div>
+                  <h4 className="font-medium text-sm mb-3">Items</h4>
+                  <div className="space-y-3">
+                    {selectedOrder.items.map((item, index) => (
+                      <div key={item.id || index} className="flex gap-3 items-center">
+                        <div className="w-12 h-12 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                          {item.thumbnail ? (
+                            <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="w-4 h-4 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{item.title}</p>
+                          <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                        </div>
+                        <p className="text-sm font-semibold text-primary">
+                          Rs. {(item.price * item.quantity).toFixed(2)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Shipping Address */}
+                <div>
+                  <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    Shipping Address
+                  </h4>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p className="font-medium text-foreground">{selectedOrder.shippingAddress.fullName}</p>
+                    <p>{selectedOrder.shippingAddress.address}</p>
+                    <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} - {selectedOrder.shippingAddress.pincode}</p>
+                    {selectedOrder.shippingAddress.phone && (
+                      <p className="flex items-center gap-1">
+                        <Phone className="w-3 h-3" />
+                        {selectedOrder.shippingAddress.phone}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Payment Details */}
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Payment</span>
+                  <span className="font-medium">{selectedOrder.paymentMethod} - {selectedOrder.paymentStatus}</span>
+                </div>
+
+                {/* Total */}
+                <div className="flex justify-between items-center bg-muted/50 p-3 rounded-lg">
+                  <span className="font-medium">Total Amount</span>
+                  <span className="text-lg font-bold text-primary">Rs. {selectedOrder.totalAmount.toFixed(2)}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                Unable to load order details
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOrderSummaryOpen(false)}>
+                Close
               </Button>
             </DialogFooter>
           </DialogContent>

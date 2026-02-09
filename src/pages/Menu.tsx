@@ -98,7 +98,7 @@ const Menu = () => {
     const loadFavorites = async () => {
         if (!user) return;
         try {
-            const response = await userService.getFavorites(user.user_id);
+            const response = await userService.getFavorites(user.id);
             if (response.status === 'success' && response.data) {
                 setFavorites(response.data);
             }
@@ -177,13 +177,13 @@ const Menu = () => {
     
     try {
         if (isFav) {
-            await userService.removeFavorite(user.user_id, productId);
+            await userService.removeFavorite(user.id, productId);
             setFavorites(prev => prev.filter(f => (f.product?.id?.toString() !== productId && f.product_id?.toString() !== productId)));
             toast({ title: "Removed from Favorites" });
         } else {
-            await userService.addFavorite(user.user_id, productId);
+            await userService.addFavorite(user.id, productId);
             // Refresh favorites to get full object or optimistically add
-            const response = await userService.getFavorites(user.user_id);
+            const response = await userService.getFavorites(user.id);
             if (response.data) setFavorites(response.data);
             toast({ title: "Added to Favorites" });
         }
