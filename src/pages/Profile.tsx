@@ -268,7 +268,7 @@ const Profile = () => {
     setSaving(true);
     try {
       // Update user profile via API
-      const response = await authService.updateProfile(user.id, {
+      const response = await authService.updateProfile({
         full_name: editForm.name,
         phone_number: editForm.phone
       });

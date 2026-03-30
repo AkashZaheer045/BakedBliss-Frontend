@@ -47,6 +47,28 @@ const AppContent = () => {
   const [userRole, setUserRole] = useState<'customer' | 'admin' | null>(null);
   const { logout, isAuthenticated, user, isLoading } = useAuth();
 
+  const resolveRole = (): 'admin' | 'customer' => {
+    if (user?.role === 'admin') {
+      return 'admin';
+    }
+
+    if (user?.role) {
+      return 'customer';
+    }
+
+    try {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        return parsedUser?.role === 'admin' ? 'admin' : 'customer';
+      }
+    } catch (_error) {
+      // Ignore localStorage parsing errors and default to customer flow.
+    }
+
+    return 'customer';
+  };
+
   // Check if user is already authenticated on mount
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -97,11 +119,14 @@ const AppContent = () => {
     if (window.location.pathname !== '/') {
       window.history.replaceState(null, '', '/');
     }
-    
-    // Update the app state - the router will render based on the new URL
-    if (userRole === 'admin') {
+
+    // Route after login based on authenticated user role from DB response.
+    const resolvedRole = resolveRole();
+    if (resolvedRole === 'admin') {
+      setUserRole('admin');
       setAppState('admin-app');
     } else {
+      setUserRole('customer');
       setAppState('customer-app');
     }
   };
@@ -184,7 +209,7 @@ const AppContent = () => {
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/order/:id" element={<OrderSummary />} />
           <Route path="/auth" element={<Auth onAuthSuccess={handleAuthSuccess} onBack={() => window.history.back()} role="customer" />} />
-          <Route path="/admin-login" element={<RoleSelection onRoleSelect={handleRoleSelect} />} />
+          <Route path="/admin-login" element={<Auth onAuthSuccess={handleAuthSuccess} onBack={() => window.history.back()} role="admin" />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       )}

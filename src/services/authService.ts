@@ -62,19 +62,24 @@ const authService = {
     },
 
     // Get user profile
-    getUserProfile: async (userId: number) => {
-        const response = await apiClient.get(`/users/profile/${userId}`);
+    getUserProfile: async () => {
+        const response = await apiClient.get('/users/profile');
         return response.data;
     },
 
     // Update user profile
-    updateProfile: async (userId: number, data: { full_name?: string; phone_number?: string; profile_picture?: string }) => {
+    // Supports both updateProfile(data) and legacy updateProfile(userId, data)
+    updateProfile: async (
+        dataOrUserId: { full_name?: string; phone_number?: string; profile_picture?: string } | number,
+        maybeData?: { full_name?: string; phone_number?: string; profile_picture?: string }
+    ) => {
+        const data = typeof dataOrUserId === 'number' ? (maybeData || {}) : dataOrUserId;
         const apiData = {
             fullName: data.full_name,
             phoneNumber: data.phone_number,
             profilePicture: data.profile_picture
         };
-        const response = await apiClient.put(`/users/profile/${userId}`, apiData);
+        const response = await apiClient.put('/users/profile', apiData);
         return response.data;
     },
 

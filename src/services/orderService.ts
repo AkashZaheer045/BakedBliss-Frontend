@@ -17,7 +17,6 @@ export interface DeliveryAddress {
 }
 
 export interface CreateOrderData {
-    user_id: number;
     cart_items: OrderCartItem[];
     delivery_address: DeliveryAddress;
     total_amount: number;
@@ -56,8 +55,8 @@ const orderService = {
     },
 
     // Get user's orders
-    getUserOrders: async (userId: number) => {
-        const response = await apiClient.get(`/order/user/${userId}`);
+    getUserOrders: async (_userId?: number) => {
+        const response = await apiClient.get('/order/history');
         return response.data;
     },
 

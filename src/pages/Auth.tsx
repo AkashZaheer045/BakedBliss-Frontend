@@ -20,6 +20,14 @@ export const Auth = ({ onAuthSuccess, onBack, onContinueAsGuest, role }: AuthPro
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const authMode = (() => {
+    if (role === 'admin') {
+      return 'login';
+    }
+
+    const modeParam = new URLSearchParams(window.location.search).get('mode');
+    return modeParam === 'signup' ? 'signup' : 'login';
+  })();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -140,7 +148,7 @@ export const Auth = ({ onAuthSuccess, onBack, onContinueAsGuest, role }: AuthPro
             </div>
 
             {/* Tabs & Form */}
-            <Tabs defaultValue="login" className="w-full">
+            <Tabs defaultValue={authMode} className="w-full">
               <TabsList className={`grid w-full mb-4 xs:mb-6 sm:mb-8 h-10 xs:h-11 sm:h-12 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50 ${role === 'admin' ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 <TabsTrigger 
                     value="login" 

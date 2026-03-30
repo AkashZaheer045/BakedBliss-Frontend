@@ -18,26 +18,26 @@ export interface FavoriteItem {
 
 const userService = {
     // Get user profile
-    getProfile: async (userId: number) => {
-        const response = await apiClient.get(`/users/profile/${userId}`);
+    getProfile: async (_userId?: number) => {
+        const response = await apiClient.get('/users/profile');
         return response.data;
     },
 
     // Get user favorites
-    getFavorites: async (userId: number) => {
-        const response = await apiClient.get(`/users/${userId}/favorites`);
+    getFavorites: async (_userId?: number) => {
+        const response = await apiClient.get('/users/favorites');
         return response.data;
     },
 
     // Add to favorites
-    addFavorite: async (userId: number, productId: number | string) => {
-        const response = await apiClient.post(`/users/${userId}/favorites`, { productId });
+    addFavorite: async (_userId: number | undefined, productId: number | string) => {
+        const response = await apiClient.post('/users/favorites', { productId });
         return response.data;
     },
 
     // Remove from favorites
-    removeFavorite: async (userId: number, productId: number | string) => {
-        const response = await apiClient.delete(`/users/${userId}/favorites/${productId}`);
+    removeFavorite: async (_userId: number | undefined, productId: number | string) => {
+        const response = await apiClient.delete(`/users/favorites/${productId}`);
         return response.data;
     }
 };

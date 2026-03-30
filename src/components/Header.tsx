@@ -128,7 +128,7 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
                       </Button>
                       <Button 
                         variant="ghost" 
-                        onClick={() => handleNavigation("/auth")}
+                            onClick={() => handleNavigation("/auth?mode=signup")}
                         className="justify-start font-medium gap-2"
                       >
                         <UserPlus className="w-4 h-4" /> Create Account
@@ -257,7 +257,7 @@ export const Header = ({ cartItemCount = 0, onSearch, onCartClick, onProfileClic
                     <LogIn className="w-4 h-4" />
                     Sign In
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/auth")} className="gap-2 cursor-pointer">
+                  <DropdownMenuItem onClick={() => navigate("/auth?mode=signup")} className="gap-2 cursor-pointer">
                     <UserPlus className="w-4 h-4" />
                     Create Account
                   </DropdownMenuItem>

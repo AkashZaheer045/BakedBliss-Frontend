@@ -84,8 +84,8 @@ const productService = {
     },
 
     // Get personalized recommendations
-    getRecommendations: async (userId: string) => {
-        const response = await apiClient.get(`/products/recommendations/${userId}`);
+    getRecommendations: async () => {
+        const response = await apiClient.get('/products/recommendations');
         return response.data;
     },
 
